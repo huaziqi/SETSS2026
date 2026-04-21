@@ -1,6 +1,15 @@
 package com.lhz.SETSS2026.controller;
 
 
+import com.lhz.SETSS2026.dto.AuthRequest;
+import com.lhz.SETSS2026.dto.AuthResponse;
+import com.lhz.SETSS2026.entity.User;
+import com.lhz.SETSS2026.service.UserService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 @RestController
 @RequestMapping("/auth") // 请求根路径
 public class AuthController {
@@ -14,7 +23,7 @@ public class AuthController {
         return userService.register(user);
     }
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
+    public AuthResponse login(@RequestBody AuthRequest request) {
         return userService.login(request.getUsername(), request.getPassword());
     }
 }
