@@ -8,8 +8,8 @@
 		<version>3.5.13</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.lhz</groupId>
-	<artifactId>SESS2026</artifactId>
+	<groupId>com.LHZ</groupId>
+	<artifactId>SETSS2026</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name/>
 	<description/>
