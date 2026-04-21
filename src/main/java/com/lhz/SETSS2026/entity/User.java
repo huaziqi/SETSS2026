@@ -11,7 +11,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements Serializable {
-    private static final long serialVersionUID = 1L;
     private Long userId;
     private String userName;
     private String passWord;
