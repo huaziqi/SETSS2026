@@ -1,1 +1,15 @@
-spring.application.name=SETSS2026
+spring:
+  application:
+    name=SETSS2026
+  datasource:
+    url: jdbc:mysql://localhost:3306/your_database_name?useSSL=false&serverTimezone=UTC&characterEncoding=utf8
+    username: root
+    password: your_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update  # 自动更新表结构（开发环境）
+    show-sql: true      # 显示SQL语句
+    properties:
+      hibernate:
+        format_sql: true  # 格式化SQL输出

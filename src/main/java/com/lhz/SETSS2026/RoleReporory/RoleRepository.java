@@ -1,4 +1,14 @@
 package com.lhz.SETSS2026.RoleReporory;
 
-public class RoleRepository {
+import com.lhz.SETSS2026.entity.Role;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface RoleRepository extends JpaRepository<Role, Integer> {
+
+    Optional<Role> findByName(String name);
 }
+
