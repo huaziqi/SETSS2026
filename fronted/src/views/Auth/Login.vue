@@ -2,16 +2,21 @@
 import { ref } from 'vue'
 import BaseButton from '@/components/BaseButton.vue'
 import BaseInput from '@/components/BaseInput.vue'
-
+import {useApi} from '../../utils/useApi'
 const username = ref('')
 const password = ref('')
 
-const handleLogin = () => {
-  console.log('登录信息：', {
+const {postData, data, loading, error} = useApi()
+const handleLogin = async () => {
+  await postData('/auth/login', {
     username: username.value,
     password: password.value
   })
+  console.log(data.value)
 }
+
+
+
 </script>
 
 <template>
@@ -52,7 +57,7 @@ const handleLogin = () => {
 
       <div class="login-footer">
         <span>还没有账号？</span>
-        <a href="#">立即注册</a>
+        <router-link to = "/register">注册</router-link>
       </div>
     </div>
   </div>
