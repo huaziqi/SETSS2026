@@ -5,31 +5,54 @@ import BaseInput from '@/components/BaseInput.vue'
 import { useApi } from '../../utils/useApi'
 
 const username = ref('')
+const email = ref('')
+const phone = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 
 const { postData, data, loading, error } = useApi()
 
 const handleRegister = async () => {
-  if (!username.value || !password.value || !confirmPassword.value) {
-    alert('请填写完整信息')
+  if (
+    !username.value ||
+    !email.value ||
+    !phone.value ||
+    !password.value ||
+    !confirmPassword.value
+  ) {
+    alert('Please fill in all fields')
+    return
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const phoneRegex = /^1[3-9]\d{9}$/
+
+  if (!emailRegex.test(email.value)) {
+    alert('Invalid email format')
+    return
+  }
+
+  if (!phoneRegex.test(phone.value)) {
+    alert('Invalid phone number')
     return
   }
 
   if (password.value !== confirmPassword.value) {
-    alert('两次输入的密码不一致')
+    alert('Passwords do not match')
     return
   }
 
-  await postData('/auth/register', {
+  await postData('/api/auth/register', {
     username: username.value,
+    email: email.value,
+    phone: phone.value,
     password: password.value
   })
 
   console.log(data.value)
 
   if (!error.value) {
-    alert('注册成功')
+    alert('Registration successful')
   }
 }
 </script>
@@ -39,32 +62,44 @@ const handleRegister = async () => {
     <div class="register-card">
       <div class="register-header">
         <h1 class="title">Create Account</h1>
-        <p class="subtitle">请注册你的账户</p>
+        <p class="subtitle">Please create your account</p>
       </div>
 
       <div class="register-form">
         <BaseInput
           v-model="username"
-          label="用户名"
-          placeholder="请输入用户名"
+          label="Username"
+          placeholder="Enter your username"
+        />
+
+        <BaseInput
+          v-model="email"
+          label="Email"
+          placeholder="Enter your email"
+        />
+
+        <BaseInput
+          v-model="phone"
+          label="Phone"
+          placeholder="Enter your phone"
         />
 
         <BaseInput
           v-model="password"
-          label="密码"
+          label="Password"
           type="password"
-          placeholder="请输入密码"
+          placeholder="Enter your password"
         />
 
         <BaseInput
           v-model="confirmPassword"
-          label="确认密码"
+          label="Confirm Password"
           type="password"
-          placeholder="请再次输入密码"
+          placeholder="Re-enter your password"
         />
 
         <BaseButton mode="dark" size="large" @click="handleRegister">
-          注册
+          Sign Up
         </BaseButton>
 
         <p v-if="error" class="error-text">
@@ -72,13 +107,13 @@ const handleRegister = async () => {
         </p>
 
         <p v-if="loading" class="loading-text">
-          正在注册...
+          Registering...
         </p>
       </div>
 
       <div class="register-footer">
-        <span>已经有账号？</span>
-        <router-link to="/login">登录</router-link>
+        <span>Already have an account?</span>
+        <router-link to="/login">Login</router-link>
       </div>
     </div>
   </div>

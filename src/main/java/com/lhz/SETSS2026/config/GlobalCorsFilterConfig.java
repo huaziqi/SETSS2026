@@ -19,7 +19,10 @@ public class GlobalCorsFilterConfig {
         // 1. 配置 CORS 规则
         CorsConfiguration config = new CorsConfiguration();
         // 允许的来源（支持通配符，兼容 allowCredentials=true）
-        config.setAllowedOriginPatterns(List.of("http://*:8848"));
+        config.setAllowedOriginPatterns(List.of("http://*:5173"));
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:5173"
+        ));
         // 允许携带凭证（Cookie/Token）
         config.setAllowCredentials(true);
         // 允许所有请求方法（GET/POST/PUT/DELETE/OPTIONS）

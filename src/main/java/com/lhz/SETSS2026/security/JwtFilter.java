@@ -26,8 +26,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     // 白名单路径统一管理
     private static final List<String> WHITE_LIST = Arrays.asList(
-            "/auth/register",
-            "/auth/login"
+            "/api/auth/register",
+            "/api/auth/login"
     );
 
     private boolean isStaticResource(String path) {

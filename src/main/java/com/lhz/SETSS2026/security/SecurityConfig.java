@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/", "/*.html", // 静态页面和根路径
-                                "/auth/register", "/auth/login", // 登录与注册请求
+                                "/api/auth/register", "/api/auth/login", // 登录与注册请求
                                 "/chat/**","/avatars/**"
                         ).permitAll() // 允许匿名访问的请求路径
                         .requestMatchers("/api/users").hasRole("ADMIN") // 配置需要ADMIN角色的访问路径

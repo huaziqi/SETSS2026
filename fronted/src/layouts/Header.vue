@@ -34,8 +34,18 @@ const handleClick = (key: string) => {
       </div>
     </nav>
     <div class = "profile">
-      <BaseButton mode = "light" size = "medium">Register</BaseButton>
-      <BaseButton mode = "light" size = "medium">Login</BaseButton>
+      
+  <router-link to="/register">
+    <BaseButton mode="light" size="medium">
+      Register
+    </BaseButton>
+  </router-link>
+
+  <router-link to="/login">
+    <BaseButton mode="light" size="medium">
+      Login
+    </BaseButton>
+  </router-link>
 
     </div>
 

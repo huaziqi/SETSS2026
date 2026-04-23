@@ -2,13 +2,14 @@
 import { ref } from 'vue'
 import BaseButton from '@/components/BaseButton.vue'
 import BaseInput from '@/components/BaseInput.vue'
+import SETSSLogo from '../../components/SETSSLogo.vue'
 import {useApi} from '../../utils/useApi'
 const username = ref('')
 const password = ref('')
 
 const {postData, data, loading, error} = useApi()
 const handleLogin = async () => {
-  await postData('/auth/login', {
+  await postData('http://localhost:8080/api/auth/login', {
     username: username.value,
     password: password.value
   })
@@ -18,46 +19,49 @@ const handleLogin = async () => {
 
 
 </script>
-
 <template>
+  <SETSSLogo />
   <div class="login-page">
+
+    
     <div class="login-card">
       <div class="login-header">
+
         <h1 class="title">Welcome Back</h1>
-        <p class="subtitle">请登录你的账户</p>
+        <p class="subtitle">Please log in to your account</p>
       </div>
 
       <div class="login-form">
         <BaseInput
           v-model="username"
-          label="用户名"
-          placeholder="请输入用户名"
+          label="Username"
+          placeholder="Enter your username"
         />
 
         <BaseInput
           v-model="password"
-          label="密码"
+          label="Password"
           type="password"
-          placeholder="请输入密码"
+          placeholder="Enter your password"
         />
 
         <div class="options">
           <label class="remember">
             <input type="checkbox" />
-            <span>记住我</span>
+            <span>Remember me</span>
           </label>
 
-          <a href="#" class="forgot">忘记密码？</a>
+          <a href="#" class="forgot">Forgot password?</a>
         </div>
 
         <BaseButton mode="dark" size="large" @click="handleLogin">
-          登录
+          Login
         </BaseButton>
       </div>
 
       <div class="login-footer">
-        <span>还没有账号？</span>
-        <router-link to = "/register">注册</router-link>
+        <span>Don't have an account?</span>
+        <router-link to="/register">Sign up</router-link>
       </div>
     </div>
   </div>
