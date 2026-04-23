@@ -2,7 +2,7 @@ spring:
   application:
     name=SETSS2026
   datasource:
-    url: jdbc:mysql://localhost:3306/setss2026?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
+    url: jdbc:mysql://192.168.56.1:3306/setss2026?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
     username: lhz
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver

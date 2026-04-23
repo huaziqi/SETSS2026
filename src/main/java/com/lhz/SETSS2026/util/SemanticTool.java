@@ -1,4 +1,4 @@
-package com.lhz.SETSS2026.util;
+package com.LHZ.SETSS2026.util;
 
 
 //处理文本的工具

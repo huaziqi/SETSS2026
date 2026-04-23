@@ -2,7 +2,7 @@
 package com.LHZ.SETSS2026.security;
 
 
-import com.lhz.SETSS2026.service.JwtAuthService;
+import com.LHZ.SETSS2026.service.JwtAuthService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
