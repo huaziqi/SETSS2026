@@ -1,7 +1,7 @@
 package com.LHZ.SETSS2026.service;
 
-import com.LHZ.SETSS2026.Repository.RoleRepository;
-import com.LHZ.SETSS2026.Repository.UserRepository;
+import com.LHZ.SETSS2026.repository.RoleRepository;
+import com.LHZ.SETSS2026.repository.UserRepository;
 import com.LHZ.SETSS2026.dto.AuthResponse;
 import com.LHZ.SETSS2026.entity.Role;
 import com.LHZ.SETSS2026.entity.User;
@@ -77,4 +77,3 @@ public class UserService {
 
 
 }
-

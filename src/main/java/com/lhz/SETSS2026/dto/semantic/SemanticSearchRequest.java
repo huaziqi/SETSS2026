@@ -1,4 +1,4 @@
-package com.LHZ.SETSS2026.dto.semantic;
+package com.lhz.SETSS2026.dto.semantic;
 
 public class SemanticSearchRequest {
 }
