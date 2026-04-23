@@ -1,6 +1,6 @@
 spring:
   application:
-    name=SETSS2026
+    name: SETSS2026
   datasource:
     url: jdbc:mysql://192.168.56.1:3306/setss2026?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
     username: lhz
