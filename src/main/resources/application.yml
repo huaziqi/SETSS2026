@@ -2,9 +2,9 @@ spring:
   application:
     name=SETSS2026
   datasource:
-    url: jdbc:mysql://localhost:3306/your_database_name?useSSL=false&serverTimezone=UTC&characterEncoding=utf8
-    username: root
-    password: your_password
+    url: jdbc:mysql://localhost:3306/setss2026?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
+    username: lhz
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
