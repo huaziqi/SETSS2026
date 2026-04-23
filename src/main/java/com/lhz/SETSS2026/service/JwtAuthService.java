@@ -1,15 +1,14 @@
-package com.lhz.SETSS2026.service;
+package com.LHZ.SETSS2026.service;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lhz.SETSS2026.RoleReporory.RoleRepository;
-import com.lhz.SETSS2026.RoleReporory.UserRepository;
-import com.lhz.SETSS2026.entity.User;
-import com.lhz.SETSS2026.security.CustomUserDetails;
-import com.lhz.SETSS2026.security.JwtUtil;
-import org.apache.catalina.Role;
+import com.LHZ.SETSS2026.RoleRepository.RoleRepository;
+import com.LHZ.SETSS2026.RoleRepository.UserRepository;
+import com.LHZ.SETSS2026.entity.User;
+import com.LHZ.SETSS2026.security.CustomUserDetails;
+import com.LHZ.SETSS2026.security.JwtUtil;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

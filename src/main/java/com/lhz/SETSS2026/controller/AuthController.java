@@ -1,10 +1,10 @@
-package com.lhz.SETSS2026.controller;
+package com.LHZ.SETSS2026.controller;
 
 
-import com.lhz.SETSS2026.dto.AuthRequest;
-import com.lhz.SETSS2026.dto.AuthResponse;
-import com.lhz.SETSS2026.entity.User;
-import com.lhz.SETSS2026.service.UserService;
+import com.LHZ.SETSS2026.dto.AuthRequest;
+import com.LHZ.SETSS2026.dto.AuthResponse;
+import com.LHZ.SETSS2026.entity.User;
+import com.LHZ.SETSS2026.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

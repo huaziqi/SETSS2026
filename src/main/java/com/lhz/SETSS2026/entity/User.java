@@ -1,4 +1,4 @@
-package com.lhz.SETSS2026.entity;
+package com.LHZ.SETSS2026.entity;
 
 
 import jakarta.persistence.*;

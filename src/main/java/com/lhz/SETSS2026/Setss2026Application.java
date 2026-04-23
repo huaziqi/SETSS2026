@@ -1,4 +1,4 @@
-package com.lhz.SETSS2026;
+package com.LHZ.SETSS2026;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

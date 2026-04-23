@@ -1,4 +1,4 @@
-package com.lhz.SETSS2026.security;
+package com.LHZ.SETSS2026.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.LHZ.SETSS2026;
+package com.lhz.SETSS2026;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

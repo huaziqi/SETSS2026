@@ -1,6 +1,6 @@
-package com.lhz.SETSS2026.RoleReporory;
+package com.LHZ.SETSS2026.RoleRepository;
 
-import com.lhz.SETSS2026.entity.Role;
+import com.LHZ.SETSS2026.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

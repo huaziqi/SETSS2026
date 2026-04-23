@@ -1,4 +1,4 @@
-package com.lhz.SETSS2026.config;
+package com.LHZ.SETSS2026.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

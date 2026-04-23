@@ -1,11 +1,11 @@
-package com.lhz.SETSS2026.service;
+package com.LHZ.SETSS2026.service;
 
-import com.lhz.SETSS2026.RoleReporory.RoleRepository;
-import com.lhz.SETSS2026.RoleReporory.UserRepository;
-import com.lhz.SETSS2026.dto.AuthResponse;
-import com.lhz.SETSS2026.entity.Role;
-import com.lhz.SETSS2026.entity.User;
-import com.lhz.SETSS2026.security.JwtUtil;
+import com.LHZ.SETSS2026.RoleRepository.RoleRepository;
+import com.LHZ.SETSS2026.RoleRepository.UserRepository;
+import com.LHZ.SETSS2026.dto.AuthResponse;
+import com.LHZ.SETSS2026.entity.Role;
+import com.LHZ.SETSS2026.entity.User;
+import com.LHZ.SETSS2026.security.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
