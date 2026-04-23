@@ -26,8 +26,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     // 白名单路径统一管理
     private static final List<String> WHITE_LIST = Arrays.asList(
-            "/api/register",
-            "/api/login"
+            "/auth/register",
+            "/auth/login"
     );
 
     private boolean isStaticResource(String path) {
@@ -64,7 +64,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         // 验证token并设置认证信息 - 修复逻辑判断错误
-        if (token != null && !jwtAuthService.isTokenInvalid(token)) { // 关键修复：将isTokenInvalid取反
+        if (token != null && !jwtAuthService.isTokenInvalid(token)) {
             try {
                 CustomUserDetails userDetails = jwtAuthService.loadUserByToken(token);
                 UsernamePasswordAuthenticationToken auth =
