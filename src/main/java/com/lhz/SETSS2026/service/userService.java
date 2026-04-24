@@ -1,5 +1,6 @@
 package com.LHZ.SETSS2026.service;
 
+import com.LHZ.SETSS2026.dto.RegisterRequest;
 import com.LHZ.SETSS2026.repository.RoleRepository;
 import com.LHZ.SETSS2026.repository.UserRepository;
 import com.LHZ.SETSS2026.dto.AuthResponse;
@@ -29,23 +30,23 @@ public class UserService {
 
     // 用户注册业务
     @Transactional
-    public String register(User user) {
-        Optional<User> existingUser = userRepository.findByName(user.getName()).stream().findFirst();
+    public String register(RegisterRequest request) {
+        Optional<User> existingUser = userRepository.findByName(request.getUsername()).stream().findFirst();
         if (existingUser.isPresent()) {
             return "用户名已存在";
         }
 
-        if (user.getEmail() != null && userRepository.findByEmail(user.getEmail()).isPresent()) {
+        if (request.getEmail() != null && userRepository.findByEmail(request.getEmail()).isPresent()) {
             return "邮箱已被注册";
         }
 
-        if (user.getPhone() != null && userRepository.findByPhone(user.getPhone()).isPresent()) {
+        if (request.getPhone() != null && userRepository.findByPhone(request.getPhone()).isPresent()) {
             return "手机号已被注册";
         }
 
         // 创建用户
+        User user = request.toEntity();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setEnable(true);
 
         // 查找角色，这里注意检查数据库中的角色名是否包含隐藏的"\n"符号，避免查询失败
         Role role = roleRepository.findByName("ROLE_USER")

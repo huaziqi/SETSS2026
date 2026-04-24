@@ -3,6 +3,7 @@ package com.LHZ.SETSS2026.controller;
 
 import com.LHZ.SETSS2026.dto.AuthRequest;
 import com.LHZ.SETSS2026.dto.AuthResponse;
+import com.LHZ.SETSS2026.dto.RegisterRequest;
 import com.LHZ.SETSS2026.entity.User;
 import com.LHZ.SETSS2026.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -23,8 +24,8 @@ public class AuthController {
         this.userService = userService;
     }
     @PostMapping("/register")
-    public String register(@RequestBody User user) {
-        return userService.register(user);
+    public String register(@RequestBody RegisterRequest request) {
+        return userService.register(request);
     }
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {

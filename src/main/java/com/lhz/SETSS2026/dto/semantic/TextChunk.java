@@ -1,4 +1,4 @@
-package com.lhz.SETSS2026.dto.semantic;
+package com.LHZ.SETSS2026.dto.semantic;
 
 
 //文本切割块类

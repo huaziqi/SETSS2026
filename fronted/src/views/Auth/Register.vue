@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import BaseButton from '@/components/BaseButton.vue'
 import BaseInput from '@/components/BaseInput.vue'
+import SETSSLogo from '@/components/SETSSLogo.vue'
 import { useApi } from '../../utils/useApi'
 
 const username = ref('')
@@ -13,13 +14,7 @@ const confirmPassword = ref('')
 const { postData, data, loading, error } = useApi()
 
 const handleRegister = async () => {
-  if (
-    !username.value ||
-    !email.value ||
-    !phone.value ||
-    !password.value ||
-    !confirmPassword.value
-  ) {
+  if (!username.value || !email.value || !phone.value || !password.value || !confirmPassword.value) {
     alert('Please fill in all fields')
     return
   }
@@ -59,61 +54,33 @@ const handleRegister = async () => {
 
 <template>
   <div class="register-page">
-    <div class="register-card">
-      <div class="register-header">
-        <h1 class="title">Create Account</h1>
-        <p class="subtitle">Please create your account</p>
-      </div>
+    <div class="center-box">
+      <SETSSLogo size="xlarge" subtitle="Hosted by Southwest University" />
 
-      <div class="register-form">
-        <BaseInput
-          v-model="username"
-          label="Username"
-          placeholder="Enter your username"
-        />
+      <div class="register-card">
+        <div class="register-header">
+          <h1 class="title">Create Account</h1>
+          <p class="subtitle">Please create your account</p>
+        </div>
 
-        <BaseInput
-          v-model="email"
-          label="Email"
-          placeholder="Enter your email"
-        />
+        <div class="register-form">
+          <BaseInput v-model="username" label="Username" placeholder="Enter your username" />
+          <BaseInput v-model="email" label="Email" placeholder="Enter your email" />
+          <BaseInput v-model="phone" label="Phone" placeholder="Enter your phone" />
+          <BaseInput v-model="password" label="Password" type="password" placeholder="Enter your password" />
+          <BaseInput v-model="confirmPassword" label="Confirm Password" type="password" placeholder="Re-enter your password" />
 
-        <BaseInput
-          v-model="phone"
-          label="Phone"
-          placeholder="Enter your phone"
-        />
+          <BaseButton mode="dark" size="large" :disabled="loading" @click="handleRegister">
+            {{ loading ? 'Registering...' : 'Sign Up' }}
+          </BaseButton>
 
-        <BaseInput
-          v-model="password"
-          label="Password"
-          type="password"
-          placeholder="Enter your password"
-        />
+          <p v-if="error" class="error-text">{{ error }}</p>
+        </div>
 
-        <BaseInput
-          v-model="confirmPassword"
-          label="Confirm Password"
-          type="password"
-          placeholder="Re-enter your password"
-        />
-
-        <BaseButton mode="dark" size="large" @click="handleRegister">
-          Sign Up
-        </BaseButton>
-
-        <p v-if="error" class="error-text">
-          {{ error }}
-        </p>
-
-        <p v-if="loading" class="loading-text">
-          Registering...
-        </p>
-      </div>
-
-      <div class="register-footer">
-        <span>Already have an account?</span>
-        <router-link to="/login">Login</router-link>
+        <div class="register-footer">
+          <span>Already have an account?</span>
+          <router-link to="/login">Login</router-link>
+        </div>
       </div>
     </div>
   </div>
@@ -121,27 +88,37 @@ const handleRegister = async () => {
 
 <style scoped>
 .register-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 100vh;
+  width: 100%;
   background: #f7f7f7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 24px;
+  box-sizing: border-box;
+}
+
+.center-box {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
 }
 
 .register-card {
   width: 100%;
-  max-width: 420px;
   background: white;
   border: 1.5px solid black;
   border-radius: 20px;
-  padding: 40px 32px;
+  padding: 36px 32px;
   box-sizing: border-box;
 }
 
 .register-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 
 .title {
@@ -161,7 +138,7 @@ const handleRegister = async () => {
 .register-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
 .register-footer {
@@ -183,16 +160,9 @@ const handleRegister = async () => {
 }
 
 .error-text {
-  margin: 0;
+  margin: -4px 0 0;
   font-size: 13px;
   color: #d93025;
-  text-align: center;
-}
-
-.loading-text {
-  margin: 0;
-  font-size: 13px;
-  color: #666;
   text-align: center;
 }
 </style>

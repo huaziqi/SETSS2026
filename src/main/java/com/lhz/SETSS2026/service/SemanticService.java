@@ -1,6 +1,6 @@
 package com.LHZ.SETSS2026.service;
 
-import com.lhz.SETSS2026.dto.semantic.TextChunk;
+import com.LHZ.SETSS2026.dto.semantic.TextChunk;
 
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;

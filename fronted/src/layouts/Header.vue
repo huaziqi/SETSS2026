@@ -63,16 +63,15 @@ const handleClick = (key: string) => {
   background: #ffffff;
 
 
-  /* 系统字体（细 + 干净） */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
 }
 
 /* Logo */
 .logo {
-  font-size: 27px;   
-  font-weight: 500;  
+  font-size: 34px;        
+  font-weight: 600;      
   color: #000;
-  letter-spacing: 2px;  
+  letter-spacing: 0px;   
 }
 
 
