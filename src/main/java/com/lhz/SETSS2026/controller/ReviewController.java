@@ -1,6 +1,8 @@
 package com.LHZ.SETSS2026.controller;
 
 import com.LHZ.SETSS2026.common.result.Result;
+import com.LHZ.SETSS2026.dto.review.ApproveAndRejectRequest;
+import com.LHZ.SETSS2026.dto.review.SubmitReviewRequest;
 import com.LHZ.SETSS2026.entity.ReviewRecord;
 import com.LHZ.SETSS2026.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -16,14 +18,15 @@ public class ReviewController {
 
     // 提交审稿意见
     @PostMapping("/submit")
-    public Result submitReview(@RequestBody Map<String,  Object> request) {
+    public Result submitReview(@RequestBody SubmitReviewRequest request) {
         try{
-            Integer manuscriptId = (Integer) request.get("manuscriptId");
-            Integer reviewerId = (Integer) request.get("reviewerId");
-            String reviewResult = (String)request.get("reviewResult");
-            String reviewComment = (String)request.get("reviewComment");
+            ReviewRecord record = reviewService.submitReview(
+                    request.getManuscriptId(),
+                    request.getReviewerId(),
+                    request.getReviewResult(),
+                    request.getReviewComment()
+            );
 
-            ReviewRecord record = reviewService.submitReview(manuscriptId, reviewerId, reviewResult, reviewComment);
             return Result.success(record);
         }catch (Exception e){
             return Result.error("提交审稿意见失败" + e.getMessage());
@@ -32,13 +35,11 @@ public class ReviewController {
 
     //稿件通过
     @PostMapping("/approve")
-    public Result approveManuscript(@RequestBody Map<String,  Object> request) {
+    public Result approveManuscript(@RequestBody ApproveAndRejectRequest request) {
         try{
-            Integer manuscriptId = (Integer) request.get("manuscriptId");
-            Integer reviewerId = (Integer) request.get("reviewerId");
-            String comment = (String)request.get("comment");
-
-            ReviewRecord record = reviewService.approveManuscript(manuscriptId, reviewerId, comment);
+            ReviewRecord record = reviewService.approveManuscript(request.getManuscriptId(),
+                    request.getReviewerId(),
+                    request.getComment());
             return Result.success("审核通过", record);
 
         }catch (Exception e){
@@ -48,13 +49,12 @@ public class ReviewController {
 
     //稿件驳回
     @PostMapping("/reject")
-    public Result rejectManuscript(@RequestBody Map<String,  Object> request) {
+    public Result rejectManuscript(@RequestBody ApproveAndRejectRequest request) {
         try{
-            Integer manuscriptId = (Integer) request.get("manuscriptId");
-            Integer reviewerId = (Integer) request.get("reviewerId");
-            String comment = (String)request.get("comment");
-
-            ReviewRecord record = reviewService.rejectManuscript(manuscriptId, reviewerId, comment);
+            ReviewRecord record = reviewService.rejectManuscript(request.getManuscriptId(),
+                    request.getReviewerId(),
+                    request.getComment()
+            );
             return Result.success("已驳回", record);
         }catch (Exception e){
             return Result.error("驳回失败" + e.getMessage());
