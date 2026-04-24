@@ -4,6 +4,7 @@ import Home from "../views/Home.vue";
 import Login from "../views/Auth/Login.vue";
 import Register from "../views/Auth/Register.vue";
 import ComponentsTest from "../views/testpage/ComponentsTest.vue";
+import Profile from '../views/Auth/Profile.vue';
 
 import Submit from "../views/submitmanu/Submit.vue";
 
@@ -12,7 +13,8 @@ const routes = [
   { path: "/login", component: Login },
   { path: "/register", component: Register },
 
-  { path: "/testcomp", component: ComponentsTest },
+    {path : '/profile', component: Profile},  
+    { path : "/testcomp", component: ComponentsTest },
 
   { path: "/submit", component: Submit },
 ];

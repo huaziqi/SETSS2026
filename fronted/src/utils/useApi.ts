@@ -9,7 +9,7 @@ export function useApi() {
     const error = ref<String | null>(null);
 
     const buildHeaders = () => {
-        const accessToken = "ok"
+        const accessToken = localStorage.getItem('accessToken');
         const headers: Record<string, string> = {};
         if(accessToken) {
             headers['Authorization'] = `Bearer ${accessToken}`;
