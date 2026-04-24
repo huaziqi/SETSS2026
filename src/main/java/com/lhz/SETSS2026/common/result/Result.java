@@ -21,6 +21,10 @@ public class Result {
         return new Result(200, message, null);
     }
 
+    // 成功（带消息和数据）
+    public static Result success(String message, Object data) {
+        return new Result(200, message, data);
+    }
     // 失败
     public static Result error(String message) {
         return new Result(500, message, null);
