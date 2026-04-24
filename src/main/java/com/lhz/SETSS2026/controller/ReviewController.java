@@ -8,8 +8,6 @@ import com.LHZ.SETSS2026.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/review")
 @RequiredArgsConstructor
