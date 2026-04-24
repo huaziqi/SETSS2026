@@ -16,7 +16,7 @@ const userName = ref("")
 const { fetchData, data } = useApi()
 
 onMounted(async () => {
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem('accessToken')
   if (token) {
     await fetchData('/api/auth/validate?token=' + token)
 

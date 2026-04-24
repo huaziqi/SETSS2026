@@ -11,7 +11,7 @@ const { fetchData, data, loading, error } = useApi()
 const editing = ref(false)
 
 onMounted(() => {
-  fetchData('/api/auth/validate?token=' + localStorage.getItem('token'))
+  fetchData('/api/auth/validate?token=' + localStorage.getItem('accessToken'))
 })
 
 const isAdmin = computed(() => data.value?.role === 'ROLE_ADMIN')
@@ -30,6 +30,10 @@ const goConsole = () => {
   router.push('/admin')
 }
 
+const goBack = () => {
+  router.push('/')
+}
+
 const logout = () => {
   localStorage.removeItem('accessToken')
   router.push('/login')
@@ -41,11 +45,15 @@ const logout = () => {
     <div class="profile-layout">
       <section class="profile-header">
         <div class="header-left">
+          <button class="back-btn" @click="goBack" title="Back Home">
+            ←
+          </button>
+
           <div class="avatar">
             {{ avatarText }}
           </div>
 
-          <div>
+          <div class="header-info">
             <h1>{{ data?.userName || 'Profile' }}</h1>
             <p>Manage your personal information and account status.</p>
 
@@ -136,7 +144,7 @@ const logout = () => {
             </div>
           </section>
 
-          <section class="profile-section danger-section">
+          <section class="profile-section">
             <div class="section-title">
               <h2>Session</h2>
               <p>You can sign out of the current account here.</p>
@@ -170,27 +178,47 @@ const logout = () => {
   margin: 0 auto;
 }
 
-/* ===== Header ===== */
 .profile-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 32px;
   padding-bottom: 28px;
-  border-bottom: 1px solid #eee; /* ✅ 保留唯一一条主结构线 */
+  border-bottom: 1px solid #eee;
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
+  min-width: 0;
+}
+
+.back-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.back-btn:hover {
+  background: #f0f0f0;
+  color: #111;
+  transform: translateX(-2px);
 }
 
 .avatar {
   width: 68px;
   height: 68px;
   border-radius: 50%;
-  border: 1px solid #ddd;   /* 更轻 */
+  border: 1px solid #ddd;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -198,13 +226,22 @@ const logout = () => {
   font-weight: 600;
   color: #111;
   background: white;
+  flex-shrink: 0;
+}
+
+.header-info {
+  min-width: 0;
 }
 
 .profile-header h1 {
   margin: 0;
+  max-width: 420px;
   font-size: 38px;
   font-weight: 600;
   color: #111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-header p {
@@ -223,8 +260,8 @@ const logout = () => {
 .role-pill {
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 16px;
-  background: #f2f2f2; /* ❗去边框，改背景 */
+  font-size: 12px;
+  background: #f2f2f2;
   color: #333;
 }
 
@@ -236,7 +273,7 @@ const logout = () => {
 }
 
 .status-text {
-  font-size: 17px;
+  font-size: 13px;
   color: #444;
 }
 
@@ -247,33 +284,33 @@ const logout = () => {
 .header-actions {
   display: flex;
   gap: 10px;
+  flex-shrink: 0;
 }
 
-/* ===== Section ===== */
 .profile-section {
   display: grid;
   grid-template-columns: 220px 1fr;
   gap: 48px;
-  padding: 36px 0;   /* ❗用留白替代分割线 */
+  padding: 36px 0;
 }
 
 .section-title h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
 }
 
 .section-title p {
   margin-top: 6px;
-  font-size: 17px;
+  font-size: 13px;
   color: #888;
+  line-height: 1.6;
 }
 
-/* ===== Info ===== */
 .info-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;  /* ❗用间距替代边框 */
+  gap: 6px;
 }
 
 .info-row {
@@ -281,6 +318,7 @@ const logout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 32px;
   padding: 0 6px;
   border-radius: 8px;
   transition: all 0.2s ease;
@@ -291,12 +329,12 @@ const logout = () => {
 }
 
 .label {
-  font-size: 17px;
+  font-size: 13px;
   color: #888;
 }
 
 .value {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 500;
   color: #111;
   max-width: 360px;
@@ -305,7 +343,6 @@ const logout = () => {
   text-overflow: ellipsis;
 }
 
-/* 状态小点 */
 .status-value {
   display: flex;
   align-items: center;
@@ -323,7 +360,6 @@ const logout = () => {
   background: #bbb;
 }
 
-/* ===== 消息 ===== */
 .message {
   padding: 40px 0;
   color: #777;
@@ -333,7 +369,6 @@ const logout = () => {
   color: #d93025;
 }
 
-/* ===== 响应式 ===== */
 @media (max-width: 720px) {
   .profile-page {
     padding: 40px 20px;
@@ -343,9 +378,30 @@ const logout = () => {
     flex-direction: column;
   }
 
+  .header-left {
+    align-items: flex-start;
+  }
+
+  .profile-header h1 {
+    font-size: 34px;
+    max-width: 240px;
+  }
+
   .profile-section {
     grid-template-columns: 1fr;
     gap: 20px;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .info-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 6px;
   }
 }
 </style>
