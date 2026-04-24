@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/auth") // 请求根路径
+@RequestMapping("/api/auth") // 请求根路径
 public class AuthController {
     private final UserService userService;
 
