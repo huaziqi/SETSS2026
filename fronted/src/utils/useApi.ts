@@ -1,7 +1,7 @@
 import {ref} from 'vue';
 import axios from 'axios';
 
-export default function useApi() { 
+export function useApi() { 
 
 
     const data = ref();
