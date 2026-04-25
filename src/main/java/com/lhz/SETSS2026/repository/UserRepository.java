@@ -2,6 +2,7 @@ package com.LHZ.SETSS2026.repository;
 
 import com.LHZ.SETSS2026.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,8 +15,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     List<User> findByName(String name);
 
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.role WHERE u.name = :name")
+    Optional<User> findByNameWithRole(String name);
+
     Optional<User> findByPhone(String phone);
 
     Optional<User> findByEmail(String email);
 }
+
 

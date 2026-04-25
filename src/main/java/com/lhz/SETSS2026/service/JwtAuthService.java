@@ -69,12 +69,10 @@ public class JwtAuthService {
             List<GrantedAuthority> authorities = roles.stream()
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
-            return new CustomUserDetails(0, username, "", authorities); // userId 可为空或另行缓存
+            return new CustomUserDetails(0, username, "", authorities);
         }
         // 缓存缺失：访问数据库确认用户存在性，并尝试获取权限
-        User user = userRepository.findByName(username)
-                .stream()
-                .findFirst()
+        User user = userRepository.findByNameWithRole(username)
                 .orElseThrow(() -> new UsernameNotFoundException("不存在用户：" + username));
         List<String> fetchedRoles = user.getRole() != null
                 ? Collections.singletonList(user.getRole().getName())

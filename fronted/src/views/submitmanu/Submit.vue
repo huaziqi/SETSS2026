@@ -1,57 +1,164 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import axios from "axios"; // 🔥 1. 引入 axios
 import BaseButton from "@/components/BaseButton.vue";
 import SETSSLogo from "../../components/SETSSLogo.vue";
 
 const router = useRouter();
 
-// 表单数据
+// 状态定义
 const name = ref("");
 const title = ref("");
 const introduce = ref("");
 const file = ref<File | null>(null);
 
-// 模拟提交状态
 const loading = ref(false);
-const error = ref("");
-const success = ref("");
+const errorMsg = ref("");
+const successMsg = ref("");
+
+// 登录检查
+onMounted(() => {
+  const token = localStorage.getItem("token");
+  const id = localStorage.getItem("id");
+  if (!token || !id) {
+    router.replace("/login");
+  }
+});
 
 // 处理文件选择
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
     file.value = target.files[0];
+    // 清除之前的错误信息
+    errorMsg.value = "";
+    successMsg.value = "";
   }
 };
 
-// 提交处理
+// 🔥 2. 文件校验逻辑
+const validateFile = (file: File): string | null => {
+  // 允许的后缀名
+  const allowedExtensions = [
+    ".docx",
+    ".pdf",
+    ".md",
+    ".markdown",
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".zip",
+  ];
+  // 最大大小 50MB (50 * 1024 * 1024 bytes)
+  const maxSize = 50 * 1024 * 1024;
+
+  const fileName = file.name.toLowerCase();
+  const isValidExt = allowedExtensions.some((ext) => fileName.endsWith(ext));
+
+  if (!isValidExt) {
+    return "Invalid file format. Only .docx, .pdf, .md, images, and .zip are allowed.";
+  }
+
+  if (file.size > maxSize) {
+    return "File size exceeds 50MB limit.";
+  }
+
+  return null; // 校验通过
+};
+
+// 🔥 3. 提交处理
 const handleSubmit = async () => {
-  // 简单校验
+  // 重置消息
+  errorMsg.value = "";
+  successMsg.value = "";
+
+  // 1. 基础非空校验
   if (!name.value || !title.value || !introduce.value || !file.value) {
-    error.value = "Please fill in all fields and upload a file.";
+    errorMsg.value = "Please fill in all fields and upload a file.";
+    return;
+  }
+
+  // 2. 获取用户信息
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("id");
+
+  if (!token || !userId) {
+    errorMsg.value = "Session expired. Please login again.";
+    router.replace("/login");
+    return;
+  }
+
+  // 3. 文件校验
+  const validationError = validateFile(file.value);
+  if (validationError) {
+    errorMsg.value = validationError;
     return;
   }
 
   loading.value = true;
-  error.value = "";
-  success.value = "";
 
-  // 模拟 API 调用延迟
-  setTimeout(() => {
-    console.log("Submitting:", {
-      name: name.value,
-      title: title.value,
-      introduce: introduce.value,
-      fileName: file.value?.name,
+  try {
+    // 4. 构建 FormData
+    const formData = new FormData();
+    formData.append("name", name.value);
+    formData.append("id", userId);
+    formData.append("title", title.value);
+    formData.append("introduction", introduce.value);
+    formData.append("file", file.value);
+
+    // 5. 发送请求
+
+    const response = await axios.post("/api/manuscript/submit", formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // 注意：不要手动设置 Content-Type: multipart/form-data，axios 会自动处理 boundary
+      },
     });
 
-    loading.value = false;
-    success.value = "Submission successful! (Mock)";
+    // 6. 处理响应
+    // 假设后端返回结构为 Result { code: 200, message: "...", data: ... }
+    if (response.data && response.data.code === 200) {
+      successMsg.value = response.data.message || "Submission successful!";
 
-    // 可选：成功后跳转
-    // router.push('/')
-  }, 1500);
+      // 🔥 7. 清空表单
+      name.value = "";
+      title.value = "";
+      introduce.value = "";
+      file.value = null;
+
+      // 重置文件输入框显示（可选，通过重新渲染或操作 DOM，这里简单置空 file 即可更新 UI）
+      const fileInput = document.querySelector(
+        ".file-input",
+      ) as HTMLInputElement;
+      if (fileInput) fileInput.value = "";
+    } else {
+      // 后端返回业务错误 (code != 200)
+      errorMsg.value = response.data.message || "Submission failed.";
+    }
+  } catch (error: any) {
+    console.error("Submit error:", error);
+
+    // 处理 HTTP 错误或网络错误
+    if (error.response) {
+      // 服务器返回了状态码 (如 401, 403, 500)
+      if (error.response.status === 401 || error.response.status === 403) {
+        errorMsg.value = "Unauthorized. Please login again.";
+        localStorage.clear();
+        router.replace("/login");
+      } else {
+        errorMsg.value =
+          error.response.data?.message || "Server error occurred.";
+      }
+    } else if (error.request) {
+      errorMsg.value = "Network error. Please check your connection.";
+    } else {
+      errorMsg.value = "An unexpected error occurred.";
+    }
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 
@@ -77,6 +184,7 @@ const handleSubmit = async () => {
                 type="text"
                 class="custom-input"
                 placeholder="Enter your full name"
+                :disabled="loading"
               />
             </div>
 
@@ -87,6 +195,7 @@ const handleSubmit = async () => {
                 type="text"
                 class="custom-input"
                 placeholder="Enter the title of your paper"
+                :disabled="loading"
               />
             </div>
           </div>
@@ -99,34 +208,45 @@ const handleSubmit = async () => {
               class="custom-textarea"
               placeholder="Briefly describe your work..."
               rows="4"
+              :disabled="loading"
             ></textarea>
           </div>
 
           <!-- File Upload -->
           <div class="form-group">
-            <label class="input-label">Upload Paper (PDF/Word)</label>
-            <div class="file-upload-wrapper">
+            <label class="input-label"
+              >Upload Paper (PDF/Word/MD/Img/Zip)</label
+            >
+            <div
+              class="file-upload-wrapper"
+              :class="{ 'is-disabled': loading }"
+            >
               <input
                 type="file"
                 @change="handleFileChange"
                 class="file-input"
-                accept=".pdf,.doc,.docx"
+                accept=".pdf,.docx,.md,.markdown,.jpg,.jpeg,.png,.gif,.zip"
+                :disabled="loading"
               />
               <div class="file-name-display" v-if="file">
-                📄 {{ file.name }}
+                📄 {{ file.name }} ({{ (file.size / 1024 / 1024).toFixed(2) }}
+                MB)
               </div>
               <div class="file-name-display empty" v-else>No file chosen</div>
             </div>
+            <p class="file-hint">
+              Max size: 50MB. Formats: .docx, .pdf, .md, images, .zip
+            </p>
           </div>
 
           <!-- Error Message -->
-          <p v-if="error" class="error-text">
-            {{ error }}
+          <p v-if="errorMsg" class="error-text">
+            {{ errorMsg }}
           </p>
 
           <!-- Success Message -->
-          <p v-if="success" class="success-text">
-            {{ success }}
+          <p v-if="successMsg" class="success-text">
+            {{ successMsg }}
           </p>
 
           <!-- Submit Button -->
@@ -151,7 +271,7 @@ const handleSubmit = async () => {
 </template>
 
 <style scoped>
-/* 页面背景布局 */
+/* 样式保持不变，仅增加少量提示样式 */
 .submit-page {
   min-height: 100vh;
   width: 100%;
@@ -159,37 +279,36 @@ const handleSubmit = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px; /* 减小外层padding */
+  padding: 20px;
   box-sizing: border-box;
 }
 
 .center-box {
   width: 100%;
-  max-width: 700px; /* 🔥 关键：加宽容器，让形状变扁 */
+  max-width: 700px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px; /* 减小Logo和卡片的间距 */
+  gap: 20px;
 }
 
-/* 卡片样式 */
 .submit-card {
   width: 100%;
   background: white;
   border: 1.5px solid black;
-  border-radius: 16px; /* 稍微减小圆角，显得更利落 */
-  padding: 32px 40px; /* 🔥 关键：减小上下padding(32px)，增加左右padding(40px) */
+  border-radius: 16px;
+  padding: 32px 40px;
   box-sizing: border-box;
 }
 
 .submit-header {
   text-align: center;
-  margin-bottom: 24px; /* 减小头部下方间距 */
+  margin-bottom: 24px;
 }
 
 .title {
   margin: 0;
-  font-size: 28px; /* 稍微减小标题字号 */
+  font-size: 28px;
   font-weight: 700;
   color: black;
   letter-spacing: 0.5px;
@@ -204,10 +323,9 @@ const handleSubmit = async () => {
 .submit-form {
   display: flex;
   flex-direction: column;
-  gap: 16px; /* 减小表单元素间距 */
+  gap: 16px;
 }
 
-/* 🔥 新增：横向排列的行 */
 .form-row {
   display: flex;
   gap: 20px;
@@ -219,23 +337,21 @@ const handleSubmit = async () => {
   gap: 6px;
 }
 
-/* 🔥 关键：让两个输入框各占一半宽度 */
 .form-group.half {
   flex: 1;
 }
 
 .input-label {
-  font-size: 13px; /* 稍微减小标签字号 */
+  font-size: 13px;
   font-weight: 500;
   color: #333;
   margin-left: 2px;
 }
 
-/* 自定义 Input 样式 */
 .custom-input,
 .custom-textarea {
   width: 100%;
-  padding: 10px 14px; /* 稍微减小内边距，让输入框看起来更紧凑 */
+  padding: 10px 14px;
   font-size: 14px;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -252,17 +368,22 @@ const handleSubmit = async () => {
   background: #fff;
 }
 
-.custom-textarea {
-  resize: vertical;
-  min-height: 80px; /* 限制最小高度 */
+.custom-input:disabled,
+.custom-textarea:disabled {
+  background: #eee;
+  cursor: not-allowed;
 }
 
-/* 文件上传样式 */
+.custom-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
 .file-upload-wrapper {
   position: relative;
   border: 1px dashed #ccc;
   border-radius: 6px;
-  padding: 16px; /* 减小内边距 */
+  padding: 16px;
   text-align: center;
   background: #fafafa;
   transition: all 0.2s;
@@ -271,6 +392,12 @@ const handleSubmit = async () => {
 .file-upload-wrapper:hover {
   border-color: #000;
   background: #fff;
+}
+
+.file-upload-wrapper.is-disabled {
+  background: #eee;
+  border-color: #ddd;
+  cursor: not-allowed;
 }
 
 .file-input {
@@ -283,6 +410,10 @@ const handleSubmit = async () => {
   cursor: pointer;
 }
 
+.file-input:disabled {
+  cursor: not-allowed;
+}
+
 .file-name-display {
   font-size: 13px;
   color: #333;
@@ -293,12 +424,19 @@ const handleSubmit = async () => {
   color: #999;
 }
 
-/* 错误与成功提示 */
+.file-hint {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+  text-align: center;
+}
+
 .error-text {
   margin: -5px 0 0;
   font-size: 13px;
   color: #d93025;
   text-align: center;
+  font-weight: 500;
 }
 
 .success-text {
@@ -306,6 +444,7 @@ const handleSubmit = async () => {
   font-size: 13px;
   color: #0f9d58;
   text-align: center;
+  font-weight: 500;
 }
 
 .submit-btn {
@@ -331,7 +470,6 @@ const handleSubmit = async () => {
   text-decoration: underline;
 }
 
-/* 响应式适配：屏幕变窄时恢复单列 */
 @media (max-width: 600px) {
   .form-row {
     flex-direction: column;

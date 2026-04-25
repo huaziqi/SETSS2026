@@ -41,7 +41,7 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
-//        System.out.println("请求路径：" + path);
+        System.out.println("请求路径：" + path);
         // 关键：OPTIONS 预检请求直接放行
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
@@ -56,13 +56,13 @@ public class JwtFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
+        System.out.println("请求路径：" + path);
         // 提取token
         String token = extractTokenFromHeader(request);
         if (token == null) {
             token = extractTokenFromQuery(request);
         }
-
+        System.out.println("token：" + token);
         // 验证token并设置认证信息 - 修复逻辑判断错误
         if (token != null && !jwtAuthService.isTokenInvalid(token)) {
             try {
@@ -72,15 +72,17 @@ public class JwtFilter extends OncePerRequestFilter {
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (Exception e) {
+                System.out.println("JWT解析失败: " + e.getMessage());
                 SecurityContextHolder.clearContext(); // 出错时清除上下文
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT解析失败: " + e.getMessage());
                 return;
             }
         } else {
+            System.out.println("认证信息无效");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "无效的认证信息");
             return;
         }
-
+        System.out.println("认证信息设置成功");
         filterChain.doFilter(request, response);
     }
 

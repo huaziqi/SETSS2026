@@ -12,3 +12,10 @@ spring:
     properties:
       hibernate:
         format_sql: true # 格式化SQL输出
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+      enabled: true
+file:
+  upload-dir: D:/setss2026/uploads/manuscripts

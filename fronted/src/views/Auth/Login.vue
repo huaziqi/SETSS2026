@@ -1,25 +1,26 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import BaseButton from '@/components/BaseButton.vue'
-import BaseInput from '@/components/BaseInput.vue'
-import SETSSLogo from '../../components/SETSSLogo.vue'
-import { useApi } from '../../utils/useApi'
+import { ref } from "vue";
+import BaseButton from "@/components/BaseButton.vue";
+import BaseInput from "@/components/BaseInput.vue";
+import SETSSLogo from "../../components/SETSSLogo.vue";
+import { useApi } from "../../utils/useApi";
 
-const username = ref('')
-const password = ref('')
+const username = ref("");
+const password = ref("");
 
-const { postData, data, loading, error } = useApi()
+const { postData, data, loading, error } = useApi();
 
 const handleLogin = async () => {
-  await postData('/api/auth/login', {
+  await postData("/api/auth/login", {
     username: username.value,
-    password: password.value
-  })
+    password: password.value,
+  });
 
-  if (!error.value && data.value?.token) {
-    localStorage.setItem('token', data.value.token)
+  if (!error.value && data.value?.token && data.value?.id) {
+    localStorage.setItem("token", data.value.token);
+    localStorage.setItem("id", data.value.id);
   }
-}
+};
 </script>
 
 <template>
@@ -62,7 +63,7 @@ const handleLogin = async () => {
             :disabled="loading"
             @click="handleLogin"
           >
-            {{ loading ? 'Logging in...' : 'Login' }}
+            {{ loading ? "Logging in..." : "Login" }}
           </BaseButton>
 
           <p v-if="error" class="error-text">

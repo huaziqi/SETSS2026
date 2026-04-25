@@ -5,24 +5,38 @@ import com.LHZ.SETSS2026.entity.Manuscript;
 import com.LHZ.SETSS2026.service.ManuService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/manuscript")
+@RequestMapping("api/manuscript")
 @RequiredArgsConstructor
 public class ManuController {
     private final ManuService manuService;
 
     //提交新稿件
+    //提交新稿件（带文件上传）
     @PostMapping("/submit")
-    public Result submitManuscript(Manuscript manuscript){
+    public Result submitManuscript(
+            @RequestParam("name") String name,
+            @RequestParam("id") Integer id,
+            @RequestParam("title") String title,
+            @RequestParam("introduction") String introduction,
+            @RequestParam("file") MultipartFile file
+    ){
         try{
-            Manuscript saved = manuService.submitManuscript(manuscript);
+            Manuscript manuscript = new Manuscript();
+            manuscript.setAuthor(name);
+            manuscript.setUserId(id);
+            manuscript.setTitle(title);
+            manuscript.setIntroduction(introduction);
+
+            Manuscript saved = manuService.submitManuscript(manuscript, file);
             return Result.success(saved);
         } catch (Exception e) {
             e.printStackTrace();
-            return Result.error("提交稿件失败" + e.getMessage());
+            return Result.error("提交稿件失败：" + e.getMessage());
         }
     }
 

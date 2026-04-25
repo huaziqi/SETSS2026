@@ -23,7 +23,7 @@ public class Manuscript {
 
     // 稿件内容 / 摘要
     @Column(columnDefinition = "TEXT") // 长文本
-    private String content;
+    private String introduction;
 
     // 作者姓名
     private String author;
@@ -34,6 +34,18 @@ public class Manuscript {
     // 稿件状态
     // 待审核 / 已分配 / 评审中 / 通过 / 驳回 / 已发布
     private String status;
+
+    // 原始文件名
+    private String originalFileName;
+
+    // 文件存储路径（相对路径或绝对路径）
+    private String filePath;
+
+    // 文件类型（pdf/docx/zip）
+    private String fileType;
+
+    // 文件大小（字节）
+    private Long fileSize;
 
     // 审稿员ID（可以存用户名/ID）
     private String reviewer;
