@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
 defineProps<{
   post: {
     postId: number
@@ -9,13 +13,14 @@ defineProps<{
     viewCount: number
     commentCount: number
     isPinned?: boolean
+    userName?: string
     username?: string
   }
 }>()
 </script>
 
 <template>
-  <article class="post-card">
+  <article class="post-card" @click="router.push(`/forum/post/${post.postId}`)">
     <div class="post-main">
       <div class="post-title-row">
         <span v-if="post.isPinned" class="pinned">Top</span>
@@ -27,7 +32,7 @@ defineProps<{
       </p>
 
       <div class="post-meta">
-        <span>{{ post.username || 'Anonymous' }}</span>
+        <span>{{ post.userName || post.username || 'Anonymous' }}</span>
         <span>{{ post.publishTime }}</span>
         <span v-if="post.tag">#{{ post.tag }}</span>
       </div>
@@ -47,9 +52,9 @@ defineProps<{
   gap: 24px;
   padding: 20px 22px;
   background: #fff;
-  /* border-radius: 14px; */
   border: 1px solid #e8e8e8;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .post-card:hover {
