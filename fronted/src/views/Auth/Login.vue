@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import BaseButton from "@/components/BaseButton.vue";
-import BaseInput from "@/components/BaseInput.vue";
-import SETSSLogo from "../../components/SETSSLogo.vue";
-import { useApi } from "../../utils/useApi";
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import BaseButton from '@/components/BaseButton.vue'
+import BaseInput from '@/components/BaseInput.vue'
+import SETSSLogo from '../../components/SETSSLogo.vue'
+import { useApi } from '../../utils/useApi'
 
-const username = ref("");
-const password = ref("");
+const username = ref('')
+const password = ref('')
+const router = useRouter()
 
 const { postData, data, loading, error } = useApi();
 
@@ -16,9 +18,9 @@ const handleLogin = async () => {
     password: password.value,
   });
 
-  if (!error.value && data.value?.token && data.value?.id) {
-    localStorage.setItem("token", data.value.token);
-    localStorage.setItem("id", data.value.id);
+  if (!error.value && data.value?.token) {
+    localStorage.setItem('accessToken', data.value.token)
+    router.push('/')
   }
 };
 </script>

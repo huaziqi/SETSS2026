@@ -1,6 +1,7 @@
 package com.LHZ.SETSS2026.service;
 
 import com.LHZ.SETSS2026.dto.RegisterRequest;
+import com.LHZ.SETSS2026.dto.UserInfoResponse;
 import com.LHZ.SETSS2026.repository.RoleRepository;
 import com.LHZ.SETSS2026.repository.UserRepository;
 import com.LHZ.SETSS2026.dto.AuthResponse;
@@ -74,6 +75,23 @@ public class UserService {
 
         String token = jwtUtil.generateToken(String.valueOf(user.getId()), user.getName());
         return new AuthResponse(token, user.getId());
+    }
+
+    public UserInfoResponse getUserInfoByTokrn(String token){ //根据token判断
+        UserInfoResponse userInfo = new UserInfoResponse();
+        if(! jwtUtil.validateToken(token)){
+            userInfo.setError("invalid token");
+            return userInfo;
+        }
+        userInfo.setUserName(jwtUtil.extractUserName(token));
+        User user = userRepository.findByName(userInfo.getUserName()).getFirst();
+        userInfo.setEmail(user.getEmail());
+        userInfo.setPhone(user.getPhone());
+        userInfo.setEnable(user.getEnable());
+        userInfo.setRole(user.getRole().getName());
+
+        return userInfo;
+
     }
 
 

@@ -1,54 +1,98 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import BaseButton from "../components/BaseButton.vue";
+import BaseButton from "../components/BaseButton.vue"
+import { ref, onMounted } from "vue"
+import { useApi } from "../utils/useApi"
 
-// 引入 useRouter 用于编程式导航（如果需要），但这里我们主要用 router-link
-import { useRouter } from "vue-router";
+
+
+import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
+const route = useRoute();
 
-const active = ref("home");
+const handleClick = (path: string) => {
+  router.push(path);
+};
+
+const isLogin = ref(false)
+const active = ref("home")
+const userName = ref("")
+const { validate, data } = useApi()
+
+onMounted(async () => {
+  const isValid = await validate()
+  if(isValid){
+    userName.value = data.value.userName
+    isLogin.value = true
+  }
+})
+
 
 const menu = [
   { key: "home", label: "Home", path: "/" },
-  { key: "schedule", label: "Schedule", path: "/schedule" }, // 假设路径，可根据实际调整
-  { key: "courses", label: "Courses", path: "/courses" }, // 假设路径
+  { key: "schedule", label: "Schedule", path: "/schedule" },
+  { key: "courses", label: "Courses", path: "/courses" }, 
   { key: "manuscript", label: "Manuscript", path: "/submit" }, // 新增稿件提交
-  { key: "about", label: "About", path: "/about" }, // 假设路径
+  { key: "about", label: "About", path: "/about" },
+  { key: "forum", label: "Forum", path: "/forum"}
 ];
 
-const handleClick = (key: string, path: string) => {
-  active.value = key;
-  if (key === "manuscript") {
-    router.push(path);
-  }
-};
+
 </script>
 
 <template>
   <header class="header">
     <!-- Logo 部分，点击可回家 -->
-    <div class="logo" @click="handleClick('home', '/')">SETSS 2026</div>
+    <div class="logo">SETSS 2026</div>
 
     <nav class="nav">
       <div
         v-for="item in menu"
         :key="item.key"
         class="nav-item"
-        :class="{ active: active === item.key }"
-        @click="handleClick(item.key, item.path)"
+        :class="{ active: route.path === item.path }"
+        @click="handleClick(item.path)"
       >
         {{ item.label }}
       </div>
     </nav>
+  
     <div class="profile">
-      <router-link to="/register">
-        <BaseButton mode="light" size="medium"> Register </BaseButton>
-      </router-link>
 
-      <router-link to="/login">
-        <BaseButton mode="light" size="medium"> Login </BaseButton>
-      </router-link>
+      <!-- 未登录 -->
+      <template v-if="!isLogin">
+        <router-link to="/register">
+          <BaseButton mode="light" size="medium">
+            Register
+          </BaseButton>
+        </router-link>
+
+        <router-link to="/login">
+          <BaseButton mode="light" size="medium">
+            Login
+          </BaseButton>
+        </router-link>
+      </template>
+
+      <!-- 已登录 -->
+      <template v-else>
+    <router-link to="/profile" class="user-box">
+    
+    <div class="avatar">
+      <!-- 简单头像（SVG） -->
+      <svg viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="8" r="4" stroke="black" stroke-width="2"/>
+        <path d="M4 20c1.5-4 6-6 8-6s6.5 2 8 6" stroke="black" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <span class="username">
+      {{ userName }}
+    </span>
+
+  </router-link>
+</template>
+
     </div>
   </header>
 </template>
@@ -109,4 +153,46 @@ const handleClick = (key: string, path: string) => {
   display: flex;
   gap: 12px;
 }
+.user-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  color: black;
+  max-width: 160px;
+}
+
+/* hover效果 */
+.user-box:hover {
+  opacity: 0.7;
+}
+
+/* 头像 */
+.avatar {
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid black;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* 用户名（重点） */
+.username {
+  font-size: 18px;
+  max-width: 100px;
+  font-weight: 500;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 </style>
