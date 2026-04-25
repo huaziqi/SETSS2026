@@ -13,6 +13,7 @@ const { fetchData, postData, data, error, loading, validate } = useApi()
 
 const comments = ref<CommentItem[]>([])
 const commentText = ref('')
+const isLogin = ref(false)
 
 const loadComments = async () => {
   await fetchData(`/api/posts/${props.postId}/comments`)
@@ -22,7 +23,10 @@ const loadComments = async () => {
   }
 }
 
-const createComment = async (content: string, parentCommentId: number | null = null) => {
+const createComment = async (
+  content: string,
+  parentCommentId: number | null = null
+) => {
   await postData(`/api/posts/${props.postId}/comments`, {
     content,
     parentCommentId
@@ -34,9 +38,15 @@ const createComment = async (content: string, parentCommentId: number | null = n
 }
 
 const submitComment = async () => {
+  if (!isLogin.value) {
+    router.push('/login')
+    return
+  }
+
   const content = commentText.value.trim()
+
   if (!content) {
-    alert('评论内容不能为空')
+    alert('Comment cannot be empty')
     return
   }
 
@@ -48,16 +58,17 @@ const submitComment = async () => {
 }
 
 const submitReply = async (commentId: number, content: string) => {
+  if (!isLogin.value) {
+    router.push('/login')
+    return
+  }
+
   await createComment(content, commentId)
 }
 
 onMounted(async () => {
   const isValid = await validate()
-  if (!isValid) {
-    alert('请先登录后评论')
-    router.push('/login')
-    return
-  }
+  isLogin.value = isValid
 
   await loadComments()
 })
@@ -65,16 +76,32 @@ onMounted(async () => {
 
 <template>
   <section class="comment-section">
-    <h2>评论区</h2>
+    <h2>Comments</h2>
 
-    <div class="publish-box">
-      <textarea v-model="commentText" placeholder="写下你的评论..." />
-      <button class="submit-btn" :disabled="loading" @click="submitComment">
-        {{ loading ? '发布中...' : '发布评论' }}
+    <div v-if="isLogin" class="publish-box">
+      <textarea
+        v-model="commentText"
+        placeholder="Write your comment..."
+      />
+
+      <button
+        class="submit-btn"
+        :disabled="loading"
+        @click="submitComment"
+      >
+        {{ loading ? 'Posting...' : 'Post Comment' }}
       </button>
     </div>
 
-    <p v-if="error" class="error">评论操作失败，请重试。</p>
+    <div v-else class="login-tip">
+      Please
+      <span @click="router.push('/login')">log in</span>
+      to post a comment.
+    </div>
+
+    <p v-if="error" class="error">
+      Comment operation failed. Please try again.
+    </p>
 
     <div v-if="comments.length" class="comment-list">
       <CommentCard
@@ -85,7 +112,9 @@ onMounted(async () => {
       />
     </div>
 
-    <p v-else class="empty">还没有评论，来抢沙发吧。</p>
+    <p v-else class="empty">
+      No comments yet. Be the first to comment.
+    </p>
   </section>
 </template>
 
@@ -93,19 +122,36 @@ onMounted(async () => {
 .comment-section {
   margin-top: 28px;
 }
+
+.comment-section h2 {
+  margin: 0 0 14px;
+  font-size: 22px;
+  color: #111;
+}
+
 .publish-box {
   border: 1px solid #e5e7eb;
   background: #fff;
   padding: 14px;
   margin-bottom: 16px;
 }
+
 .publish-box textarea {
   width: 100%;
   min-height: 100px;
+  box-sizing: border-box;
   border: 1px solid #d1d5db;
   padding: 10px;
   resize: vertical;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
 }
+
+.publish-box textarea:focus {
+  border-color: #111;
+}
+
 .submit-btn {
   margin-top: 10px;
   border: 1px solid #111;
@@ -114,12 +160,39 @@ onMounted(async () => {
   padding: 8px 16px;
   cursor: pointer;
 }
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-tip {
+  padding: 14px;
+  border: 1px dashed #d1d5db;
+  background: #fafafa;
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.login-tip span {
+  color: #111;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.login-tip span:hover {
+  text-decoration: underline;
+}
+
 .comment-list {
   margin-top: 10px;
 }
+
 .error {
   color: #dc2626;
 }
+
 .empty {
   color: #6b7280;
 }

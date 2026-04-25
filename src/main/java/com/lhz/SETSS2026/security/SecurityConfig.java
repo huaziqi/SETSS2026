@@ -2,6 +2,7 @@ package com.LHZ.SETSS2026.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,13 +37,28 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // 禁用CSRF跨站请求伪造防护
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/", "/*.html", // 静态页面和根路径
-                                "/api/auth/register", "/api/auth/login", "/api/auth/validate", // 登录与注册请求
-                                "/chat/**","/avatars/**"
-                        ).permitAll() // 允许匿名访问的请求路径
-                        .requestMatchers("/api/users").hasRole("ADMIN") // 配置需要ADMIN角色的访问路径
-                        .anyRequest().authenticated() // 所有其他请求都必须已认证
-                ) // 请求路径的访问控制配置
+                                "/",
+                                "/*.html",
+                                "/api/auth/register",
+                                "/api/auth/login",
+                                "/api/auth/validate",
+                                "/chat/**",
+                                "/avatars/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/posts/*/comments").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/posts/*/comments").authenticated()
+                        // 公开查看帖子列表
+                        .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
+                        // 公开查看帖子详情
+                        .requestMatchers(HttpMethod.GET, "/api/posts/{postId}").permitAll()
+                        // 我的帖子、发帖、修改、删除都需要登录
+                        .requestMatchers("/api/posts/my/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/posts").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/posts/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/posts/**").authenticated()
+                        .requestMatchers("/api/users").hasRole("ADMIN")
+                        .anyRequest().authenticated()
+                )
                 // 设置会话（Session）创建策略为无状态，符合JWT的认证方式
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // 将jwtFilter插入过滤器链，确保它在默认登录认证逻辑之前执行

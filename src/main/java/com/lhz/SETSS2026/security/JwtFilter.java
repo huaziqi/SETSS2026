@@ -24,6 +24,28 @@ public class JwtFilter extends OncePerRequestFilter {
     @Autowired
     private JwtAuthService jwtAuthService;
 
+
+    private boolean isPublicApi(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        String method = request.getMethod();
+
+        if (WHITE_LIST.contains(path)) {
+            return true;
+        }
+
+        if ("GET".equalsIgnoreCase(method) && path.equals("/api/posts")) {
+            return true;
+        }
+        if ("GET".equalsIgnoreCase(method) && path.matches("^/api/posts/\\d+$")) {
+            return true;
+        }
+
+        if ("GET".equalsIgnoreCase(method) && path.matches("^/api/posts/\\d+/comments$")) {
+            return true;
+        }
+
+        return false;
+    }
     // 白名单路径统一管理
     private static final List<String> WHITE_LIST = Arrays.asList(
             "/api/auth/register",
@@ -49,11 +71,9 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 白名单路径直接放行
-        if (WHITE_LIST.contains(path) ||
+        if (isPublicApi(request) ||
                 isStaticResource(path) ||
                 path.startsWith("/chat/")) {
-//            System.out.println("白名单路径：" + path);
             filterChain.doFilter(request, response);
             return;
         }

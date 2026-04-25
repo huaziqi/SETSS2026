@@ -18,6 +18,11 @@ const goMyPosts = () => {
 }
 
 const goTag = (tag: string) => {
+  if (route.query.tag === tag) {
+    router.push('/forum')
+    return
+  }
+
   router.push({
     path: '/forum',
     query: { tag }
