@@ -38,7 +38,6 @@ public class Post {
     @Column(nullable = false)
     private String status = "PUBLISHED";
 
-    // ⭐ 新增字段
     @Column(name = "comment_count", nullable = false)
     private Integer commentCount = 0;
 

@@ -17,18 +17,13 @@ const handleClick = (path: string) => {
 const isLogin = ref(false)
 const active = ref("home")
 const userName = ref("")
-const { fetchData, data } = useApi()
+const { validate, data } = useApi()
 
 onMounted(async () => {
-  const token = localStorage.getItem('accessToken')
-  if (token) {
-    await fetchData('/api/auth/validate?token=' + token)
-
-    console.log(data.value)
-    if (data.value && data.value.error === null) {
-      isLogin.value = true;
-      userName.value = data.value.userName;
-    }
+  const isValid = await validate()
+  if(isValid){
+    userName.value = data.value.userName
+    isLogin.value = true
   }
 })
 

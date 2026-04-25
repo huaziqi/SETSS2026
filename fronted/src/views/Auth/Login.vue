@@ -20,7 +20,7 @@ const handleLogin = async () => {
 
   if (!error.value && data.value?.token) {
     localStorage.setItem('accessToken', data.value.token)
-    // router.push('/')
+    router.push('/')
   }
 }
 </script>

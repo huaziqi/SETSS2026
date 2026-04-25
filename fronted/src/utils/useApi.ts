@@ -49,6 +49,27 @@ export function useApi() {
             loading.value = false;
         }
     }
-    return {data, loading, error, fetchData, postData};
+
+    const validate = async () => { 
+        const token = localStorage.getItem('accessToken')
+        if(!token)
+            return false
+
+        if (token) {
+            await fetchData('/api/auth/validate?token=' + token)
+
+            if (data.value && data.value.error === null) {
+                return true
+            }
+            else {
+                localStorage.removeItem('accessToken')
+                return false
+
+            }
+        }
+    
+    }
+
+    return {data, loading, error, fetchData, postData, validate};
 
 }
