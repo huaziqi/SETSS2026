@@ -5,10 +5,14 @@ import { useApi } from "../utils/useApi"
 
 
 
-// 引入 useRouter 用于编程式导航（如果需要），但这里我们主要用 router-link
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
+const route = useRoute();
+
+const handleClick = (path: string) => {
+  router.push(path);
+};
 
 const isLogin = ref(false)
 const active = ref("home")
@@ -31,32 +35,28 @@ onMounted(async () => {
 
 const menu = [
   { key: "home", label: "Home", path: "/" },
-  { key: "schedule", label: "Schedule", path: "/schedule" }, // 假设路径，可根据实际调整
-  { key: "courses", label: "Courses", path: "/courses" }, // 假设路径
+  { key: "schedule", label: "Schedule", path: "/schedule" },
+  { key: "courses", label: "Courses", path: "/courses" }, 
   { key: "manuscript", label: "Manuscript", path: "/submit" }, // 新增稿件提交
-  { key: "about", label: "About", path: "/about" }, // 假设路径
+  { key: "about", label: "About", path: "/about" },
+  { key: "forum", label: "Forum", path: "/forum"}
 ];
 
-const handleClick = (key: string, path: string) => {
-  active.value = key;
-  if (key === "manuscript") {
-    router.push(path);
-  }
-};
+
 </script>
 
 <template>
   <header class="header">
     <!-- Logo 部分，点击可回家 -->
-    <div class="logo" @click="handleClick('home', '/')">SETSS 2026</div>
+    <div class="logo">SETSS 2026</div>
 
     <nav class="nav">
       <div
         v-for="item in menu"
         :key="item.key"
         class="nav-item"
-        :class="{ active: active === item.key }"
-        @click="handleClick(item.key, item.path)"
+        :class="{ active: route.path === item.path }"
+        @click="handleClick(item.path)"
       >
         {{ item.label }}
       </div>
