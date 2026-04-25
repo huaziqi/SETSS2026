@@ -79,6 +79,8 @@ public class UserService {
 
     public UserInfoResponse getUserInfoByTokrn(String token){ //根据token判断
         UserInfoResponse userInfo = new UserInfoResponse();
+        System.out.println(token);
+        System.out.println(jwtUtil.validateToken(token));
         if(! jwtUtil.validateToken(token)){
             userInfo.setError("invalid token");
             return userInfo;

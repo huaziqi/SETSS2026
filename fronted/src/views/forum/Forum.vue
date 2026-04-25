@@ -1,8 +1,50 @@
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import Header from '@/layouts/Header.vue'
+import { useApi } from '@/utils/useApi'
+import ForumSidebar from '@/layouts/forum/ForumSidebar.vue'
 import PinnedPostSection from '@/layouts/forum/PinnedPostSection.vue'
 import PostListSection from '@/layouts/forum/PostListSection.vue'
-import ForumSidebar from '@/layouts/forum/ForumSidebar.vue'
+
+const route = useRoute()
+const { fetchData, data, loading, error } = useApi()
+
+const posts = computed(() => data.value || [])
+
+const currentTag = computed(() => {
+  return typeof route.query.tag === 'string' ? route.query.tag : ''
+})
+
+const filteredPosts = computed(() => {
+  if (!currentTag.value) return posts.value
+
+  return posts.value.filter((post: any) => {
+    return post.tag === currentTag.value
+  })
+})
+
+const pinnedPosts = computed(() => {
+  return filteredPosts.value.filter((post: any) => post.isPinned)
+})
+
+const normalPosts = computed(() => {
+  return filteredPosts.value.filter((post: any) => !post.isPinned)
+})
+
+const tags = computed(() => {
+  const set = new Set<string>()
+
+  posts.value.forEach((post: any) => {
+    if (post.tag) set.add(post.tag)
+  })
+
+  return Array.from(set)
+})
+
+onMounted(() => {
+  fetchData('/api/posts')
+})
 </script>
 
 <template>
@@ -10,14 +52,28 @@ import ForumSidebar from '@/layouts/forum/ForumSidebar.vue'
     <Header />
 
     <main class="forum-main">
+      <section class="forum-hero">
+        <h1>Forum</h1>
+        <p>Discuss conference topics, ask questions, and share ideas.</p>
+      </section>
 
-      <div class="forum-layout">
+      <div v-if="loading" class="message">Loading posts...</div>
+      <div v-else-if="error" class="message error">Failed to load posts.</div>
+
+      <div v-else class="forum-layout">
         <div class="forum-content">
-          <PinnedPostSection />
-          <PostListSection />
+          <PinnedPostSection
+            v-if="pinnedPosts.length"
+            :posts="pinnedPosts"
+          />
+
+          <PostListSection
+            :posts="normalPosts"
+            :current-tag="currentTag"
+          />
         </div>
 
-        <ForumSidebar />
+        <ForumSidebar :tags="tags" />
       </div>
     </main>
   </div>
@@ -63,13 +119,20 @@ import ForumSidebar from '@/layouts/forum/ForumSidebar.vue'
   min-width: 0;
 }
 
+.message {
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  color: #555;
+}
+
+.error {
+  color: #c0392b;
+}
+
 @media (max-width: 900px) {
   .forum-layout {
     flex-direction: column;
-  }
-
-  :deep(.forum-sidebar) {
-    width: 100%;
   }
 }
 </style>

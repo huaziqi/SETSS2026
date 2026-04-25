@@ -1,30 +1,9 @@
 <script setup lang="ts">
 import PostCard from './PostCard.vue'
 
-const pinnedPosts = [
-  {
-    postId: 1,
-    title: 'SETSS2026 Registration Notice',
-    content: 'Please read the registration instructions before submitting your information.',
-    tag: 'Notice',
-    publishTime: '2026-04-25',
-    viewCount: 120,
-    commentCount: 8,
-    isPinned: true,
-    username: 'Admin'
-  },
-  {
-    postId: 2,
-    title: 'Conference Schedule Discussion',
-    content: 'This thread is for questions about the conference schedule and session arrangement.',
-    tag: 'Schedule',
-    publishTime: '2026-04-24',
-    viewCount: 96,
-    commentCount: 12,
-    isPinned: true,
-    username: 'Admin'
-  }
-]
+defineProps<{
+  posts: any[]
+}>()
 </script>
 
 <template>
@@ -35,7 +14,7 @@ const pinnedPosts = [
 
     <div class="post-list">
       <PostCard
-        v-for="post in pinnedPosts"
+        v-for="post in posts"
         :key="post.postId"
         :post="post"
       />

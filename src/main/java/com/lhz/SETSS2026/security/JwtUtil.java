@@ -48,6 +48,7 @@ public class JwtUtil {
 
     // 验证令牌是否有效（签名正确、未被篡改）
     public boolean validateToken(String token) {
+
         try {
             Jwts.parser() // 创建解析器构建器
                     .verifyWith(key) // 设置签名验证使用的密钥
