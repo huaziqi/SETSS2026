@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router'
 
 import VMdEditor from '@kangc/v-md-editor'
 import '@kangc/v-md-editor/lib/style/base-editor.css'
@@ -12,12 +12,22 @@ import { useApi } from '@/utils/useApi'
 VMdEditor.use(githubTheme)
 
 const router = useRouter()
-const { postData, loading, error, validate, data } = useApi()
+const route = useRoute()
+const { postData, putData, fetchData, loading, error, validate, data } = useApi()
 
 const title = ref('')
 const tag = ref('')
 const content = ref('')
 const userInfo = ref<any>(null)
+
+const editingPostId = computed(() => {
+  const raw = route.query.postId
+  if (!raw) return null
+  const id = Number(raw)
+  return Number.isNaN(id) ? null : id
+})
+
+const isEditMode = computed(() => editingPostId.value !== null)
 
 const snapshot = ref({
   title: '',
@@ -56,12 +66,18 @@ const saveDraft = async () => {
     return
   }
 
-  await postData('/api/posts', {
+  const payload = {
     title: title.value,
     tag: tag.value.trim(),
     content: content.value,
     status: 'DRAFT'
-  })
+  }
+
+  if (isEditMode.value && editingPostId.value) {
+    await putData(`/api/posts/${editingPostId.value}`, payload)
+  } else {
+    await postData('/api/posts', payload)
+  }
 
   if (!error.value) {
     updateSnapshot()
@@ -80,18 +96,42 @@ const publish = async () => {
     return
   }
 
-  await postData('/api/posts', {
+  const payload = {
     title: title.value,
     tag: tag.value.trim(),
     content: content.value,
     status: 'PUBLISHED'
-  })
+  }
+
+  if (isEditMode.value && editingPostId.value) {
+    await putData(`/api/posts/${editingPostId.value}`, payload)
+  } else {
+    await postData('/api/posts', payload)
+  }
 
   if (!error.value) {
     updateSnapshot()
-    alert('Post published')
-    router.push('/forum')
+    alert(isEditMode.value ? 'Post updated' : 'Post published')
+    router.push('/forum/my-posts')
   }
+}
+
+const loadPostForEdit = async () => {
+  if (!isEditMode.value || !editingPostId.value) {
+    return
+  }
+
+  await fetchData(`/api/posts/my/${editingPostId.value}`)
+
+  if (error.value || !data.value || data.value.error) {
+    alert('Failed to load the post. You may not have access to it.')
+    router.push('/forum/my-posts')
+    return
+  }
+
+  title.value = data.value.title || ''
+  tag.value = data.value.tag || ''
+  content.value = data.value.content || ''
 }
 
 const handleUnload = (e: BeforeUnloadEvent) => {
@@ -110,6 +150,8 @@ onMounted(async () => {
   }
 
   userInfo.value = data.value
+
+  await loadPostForEdit()
 
   updateSnapshot()
   window.addEventListener('beforeunload', handleUnload)
@@ -172,7 +214,7 @@ onBeforeRouteLeave(() => {
       <section class="editor-card">
         <div class="editor-card-head">
           <div>
-            <h2>Content</h2>
+            <h2>{{ isEditMode ? 'Edit Content' : 'Content' }}</h2>
             <p>
               Markdown is supported. You can use headings, tables, code blocks,
               and links.
@@ -195,7 +237,7 @@ onBeforeRouteLeave(() => {
           </button>
 
           <button class="btn solid" :disabled="loading" @click="publish">
-            {{ loading ? 'Publishing...' : 'Publish' }}
+            {{ loading ? (isEditMode ? 'Updating...' : 'Publishing...') : (isEditMode ? 'Update & Publish' : 'Publish') }}
           </button>
         </div>
 
@@ -321,96 +363,82 @@ onBeforeRouteLeave(() => {
 .field label {
   display: block;
   margin-bottom: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #333;
+  font-size: 12px;
+  color: #666;
 }
 
 .field input {
   width: 100%;
-  height: 38px;
-  box-sizing: border-box;
-  border: 1px solid #dcdcdc;
-  border-radius: 3px;
-  padding: 0 10px;
-  font-size: 14px;
+  border: none;
   outline: none;
-}
-
-.field input:focus {
-  border-color: #111;
+  font-size: 16px;
+  color: #111;
 }
 
 .editor-card {
   background: #fff;
   border: 1px solid #ddd;
-  padding: 18px;
+  padding: 16px;
 }
 
 .editor-card-head {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-  gap: 20px;
-  margin-bottom: 14px;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
 }
 
 .editor-card-head h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 22px;
   color: #111;
 }
 
 .editor-card-head p {
   margin: 6px 0 0;
+  color: #666;
   font-size: 13px;
-  color: #777;
 }
 
 .status {
+  border-radius: 999px;
   padding: 4px 10px;
-  border: 1px solid #ddd;
   font-size: 12px;
 }
 
-.unsaved {
-  color: #8a5a00;
-  background: #fff8e6;
+.status.unsaved {
+  background: #fef3c7;
+  color: #92400e;
 }
 
-.saved {
-  color: #246b35;
-  background: #eef8f0;
+.status.saved {
+  background: #e8f5e9;
+  color: #1b5e20;
 }
 
 .editor-actions {
+  margin-top: 14px;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 16px;
 }
 
 .error {
-  margin: 12px 0 0;
-  color: #c0392b;
-  font-size: 14px;
+  margin-top: 10px;
+  color: #c62828;
+  font-size: 13px;
 }
 
-@media (max-width: 800px) {
-  .topbar {
-    align-items: center;
-  }
-
+@media (max-width: 900px) {
   .meta-card {
     grid-template-columns: 1fr;
   }
 
-  .editor-actions {
-    width: 100%;
-  }
-
-  .editor-actions .btn {
-    flex: 1;
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
   }
 }
 </style>

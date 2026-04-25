@@ -8,6 +8,7 @@ import Profile from '../views/Auth/Profile.vue';
 import Forum from "../views/forum/Forum.vue";
 import Schedule from "../views/Info/Schedule.vue";
 import ForumWrite from "../views/forum/ForumWrite.vue";
+import MyPosts from "../views/forum/MyPosts.vue";
 
 import Submit from "../views/submitmanu/Submit.vue";
 
@@ -24,6 +25,7 @@ const routes = [
   {path : '/forum', component: Forum},
 
   {path : '/forum/write', component: ForumWrite},
+  {path : '/forum/my-posts', component: MyPosts},
 
   { path: "/submit", component: Submit },
 ];

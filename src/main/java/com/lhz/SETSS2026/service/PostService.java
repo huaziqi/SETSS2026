@@ -23,9 +23,6 @@ public class PostService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * 创建帖子 / 保存草稿
-     */
     @Transactional
     public PostDTO createPost(PostDTO dto, Integer userId) {
         User user = userRepository.findById(userId)
@@ -46,9 +43,6 @@ public class PostService {
         return PostDTO.fromEntity(savedPost);
     }
 
-    /**
-     * 更新帖子
-     */
     @Transactional
     public PostDTO updatePost(Long postId, Integer userId, PostDTO dto) {
         Post post = postRepository.findById(postId)
@@ -65,9 +59,18 @@ public class PostService {
         return PostDTO.fromEntity(savedPost);
     }
 
-    /**
-     * 查询某个用户所有帖子
-     */
+    @Transactional
+    public void deletePost(Long postId, Integer userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+
+        if (!post.getUser().getId().equals(userId)) {
+            throw new RuntimeException("No permission to delete this post");
+        }
+
+        postRepository.delete(post);
+    }
+
     public List<PostDTO> getPostsByUser(Integer userId) {
         return postRepository.findByUser_IdOrderByPublishTimeDesc(userId)
                 .stream()
@@ -75,9 +78,6 @@ public class PostService {
                 .toList();
     }
 
-    /**
-     * 获取帖子列表
-     */
     public List<PostDTO> getPostList() {
         return postRepository.findAllByOrderByIsPinnedDescPublishTimeDesc()
                 .stream()
@@ -85,9 +85,6 @@ public class PostService {
                 .toList();
     }
 
-    /**
-     * 获取帖子详情，并让浏览量 +1
-     */
     @Transactional
     public PostDTO getPostDetail(Long postId) {
         Post post = postRepository.findById(postId)
@@ -98,9 +95,17 @@ public class PostService {
         return PostDTO.fromEntity(post);
     }
 
-    /**
-     * 单独浏览量 +1
-     */
+    public PostDTO getPostDetailForOwner(Long postId, Integer userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+
+        if (!post.getUser().getId().equals(userId)) {
+            throw new RuntimeException("No permission to view this post");
+        }
+
+        return PostDTO.fromEntity(post);
+    }
+
     @Transactional
     public void increaseViewCount(Long postId) {
         Post post = postRepository.findById(postId)
