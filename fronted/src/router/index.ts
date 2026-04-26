@@ -11,8 +11,19 @@ import ForumWrite from "../views/forum/ForumWrite.vue";
 import MyPosts from "../views/forum/MyPosts.vue";
 import MyManuscripts from "../views/manu/MyManuscripts.vue";
 import ManuUpdate from "@/views/manu/ManuUpdate.vue";
+import PostDetail from "../views/forum/PostDetail.vue";
+import Admin from "../views/admin/Admin.vue";
+import Courses from "@/views/Info/Courses.vue";
+import About from "@/views/Info/About.vue";
+import ConferencePageEditor from "@/views/admin/ConferencePageEditor.vue";
 
 import Submit from "../views/manu/Submit2.vue";
+
+import AdminDashboard from "@/views/admin/AdminDashboard.vue";
+
+import UserManagement from "@/views/admin/UserManagement.vue";
+
+import ManuscriptManagement from "@/views/admin/ManuscriptManagement.vue";
 
 const routes = [
   { path: "/", component: Home },
@@ -36,6 +47,28 @@ const routes = [
     name: "ManuUpdate",
     component: ManuUpdate,
     meta: { requiresAuth: true },
+  },
+  { path: "/forum/write", component: ForumWrite },
+  { path: "/forum/my-posts", component: MyPosts },
+  { path: "/forum/post/:postId", component: PostDetail },
+
+  { path: "/submit", component: Submit },
+
+  // Admin
+
+  {
+    path: "/admin",
+    component: AdminDashboard,
+  },
+
+  {
+    path: "/admin/users",
+    component: UserManagement,
+  },
+
+  {
+    path: "/admin/manuscripts",
+    component: ManuscriptManagement,
   },
 ];
 

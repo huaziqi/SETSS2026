@@ -303,4 +303,21 @@ public class ManuService {
 
 
 
+    //分配稿件
+    @Transactional
+    public Manuscript assignManuscript(Integer manuscriptId, Integer reviewerId) {
+        Manuscript manuscript = manuRepository.findById(manuscriptId)
+                .orElseThrow(() -> new RuntimeException("稿件不存在"));
+
+        if (!"待审核".equals(manuscript.getStatus())) {
+            throw new RuntimeException("只能分配状态为'待审核'的稿件");
+        }
+
+        manuscript.setStatus("已分配");
+        manuscript.setReviewer(String.valueOf(reviewerId));
+        manuscript.setUpdateTime(LocalDateTime.now());
+
+        return manuRepository.save(manuscript);
+    }
+
 }

@@ -1,18 +1,13 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import BaseButton from '@/components/BaseButton.vue'
 
-const router = useRouter()
+defineProps<{
+  tags: string[]
+}>()
 
-const tags = [
-  'Notice',
-  'Schedule',
-  'Submission',
-  'Keynote',
-  'Travel',
-  'Registration',
-  'Course'
-]
+const router = useRouter()
+const route = useRoute()
 
 const goWrite = () => {
   router.push('/forum/write')
@@ -23,37 +18,50 @@ const goMyPosts = () => {
 }
 
 const goTag = (tag: string) => {
+  if (route.query.tag === tag) {
+    router.push('/forum')
+    return
+  }
+
   router.push({
     path: '/forum',
-    query: {
-      tag
-    }
+    query: { tag }
   })
+}
+
+const clearTag = () => {
+  router.push('/forum')
 }
 </script>
 
 <template>
   <aside class="forum-sidebar">
     <section class="side-card action-card">
-    <div class="action-row">
+      <div class="action-row">
         <BaseButton mode="dark" size="medium" @click="goWrite">
-        Write
+          Write
         </BaseButton>
 
         <BaseButton mode="dark" size="medium" @click="goMyPosts">
-        My Posts
+          My Posts
         </BaseButton>
-    </div>
+      </div>
     </section>
 
     <section class="side-card">
-      <h3>Tags</h3>
+      <div class="tag-head">
+        <h3>Tags</h3>
+        <button v-if="route.query.tag" class="clear-btn" @click="clearTag">
+          Clear
+        </button>
+      </div>
 
       <div class="tag-list">
         <button
           v-for="tag in tags"
           :key="tag"
           class="tag-item"
+          :class="{ active: route.query.tag === tag }"
           @click="goTag(tag)"
         >
           # {{ tag }}
@@ -80,41 +88,37 @@ const goTag = (tag: string) => {
 }
 
 .action-card {
-  padding: 16px 20px; /* 和下面 tag 区对齐 */
+  padding: 16px 20px;
 }
 
-/* 横向布局 */
 .action-row {
   display: flex;
   gap: 10px;
 }
 
-/* 让两个按钮等宽 */
 .action-row :deep(button) {
   flex: 1;
 }
 
-.my-post-btn {
-  width: 100%;
-  height: 42px;
-  border: 1px solid #111;
-  border-radius: 5px;
-  background: #fff;
-  color: #111;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.tag-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
 }
 
-.my-post-btn:hover {
-  background: #111;
-  color: #fff;
-}
-
-.side-card h3 {
-  margin: 0 0 14px;
+.tag-head h3 {
+  margin: 0;
   font-size: 18px;
   color: #111;
+}
+
+.clear-btn {
+  border: none;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+  font-size: 13px;
 }
 
 .tag-list {
@@ -131,11 +135,17 @@ const goTag = (tag: string) => {
   color: #333;
   font-size: 13px;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.tag-item:hover {
+.tag-item:hover,
+.tag-item.active {
   background: #111;
   color: #fff;
+}
+
+@media (max-width: 900px) {
+  .forum-sidebar {
+    width: 100%;
+  }
 }
 </style>

@@ -64,6 +64,7 @@ public class JwtAuthService {
         String username = jwtUtil.extractUserName(token);
         // 尝试从缓存获取权限
         List<String> roles = getCachedRoles(username);
+        System.out.println(roles);
         if (!roles.isEmpty()) {
             // 用户权限存在缓存，说明用户存在，避免DB查询
             List<GrantedAuthority> authorities = roles.stream()
@@ -113,8 +114,10 @@ public class JwtAuthService {
             return Collections.emptyList();
         }
         try {
+            System.out.println("3");
             return objectMapper.readValue(json, new TypeReference<List<String>>() {});
         } catch (JsonProcessingException e) {
+
             throw new RuntimeException("反序列化Redis中"+prefix + username + "的缓存失败，内容为：" + json, e);
         }
     }

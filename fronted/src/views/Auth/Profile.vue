@@ -77,7 +77,7 @@ const logout = () => {
             Admin Console
           </BaseButton>
 
-          <BaseButton mode="light" size="medium" @click="editing = !editing">
+          <BaseButton mode="dark" size="medium" @click="editing = !editing">
             {{ editing ? "Cancel" : "Edit Profile" }}
           </BaseButton>
         </div>

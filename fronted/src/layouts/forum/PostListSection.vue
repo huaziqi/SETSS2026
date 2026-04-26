@@ -2,43 +2,15 @@
 import { computed, ref } from 'vue'
 import PostCard from './PostCard.vue'
 
+const props = defineProps<{
+  posts: any[]
+  currentTag?: string
+}>()
+
 const sortType = ref<'time' | 'views'>('time')
 
-const posts = ref([
-  {
-    postId: 3,
-    title: 'How to submit a paper?',
-    content: 'I want to know where I can submit my paper and whether there is a template.',
-    tag: 'Submission',
-    publishTime: '2026-04-23',
-    viewCount: 45,
-    commentCount: 3,
-    username: 'Alice'
-  },
-  {
-    postId: 4,
-    title: 'Question about keynote speeches',
-    content: 'Will keynote speeches be available online after the conference?',
-    tag: 'Keynote',
-    publishTime: '2026-04-22',
-    viewCount: 76,
-    commentCount: 6,
-    username: 'Bob'
-  },
-  {
-    postId: 5,
-    title: 'Hotel recommendation near the venue',
-    content: 'Are there any recommended hotels near the conference venue?',
-    tag: 'Travel',
-    publishTime: '2026-04-21',
-    viewCount: 101,
-    commentCount: 9,
-    username: 'Cindy'
-  }
-])
-
 const sortedPosts = computed(() => {
-  const list = [...posts.value]
+  const list = [...props.posts]
 
   if (sortType.value === 'views') {
     return list.sort((a, b) => b.viewCount - a.viewCount)
@@ -54,7 +26,14 @@ const sortedPosts = computed(() => {
 <template>
   <section class="section">
     <div class="section-header">
-      <h2>All Posts</h2>
+      <div>
+        <h2>
+          {{ currentTag ? `# ${currentTag}` : 'All Posts' }}
+        </h2>
+        <p v-if="currentTag" class="filter-tip">
+          Showing posts tagged with {{ currentTag }}
+        </p>
+      </div>
 
       <div class="sort-group">
         <button
@@ -73,12 +52,16 @@ const sortedPosts = computed(() => {
       </div>
     </div>
 
-    <div class="post-list">
+    <div v-if="sortedPosts.length" class="post-list">
       <PostCard
         v-for="post in sortedPosts"
         :key="post.postId"
         :post="post"
       />
+    </div>
+
+    <div v-else class="empty">
+      No posts found.
     </div>
   </section>
 </template>
@@ -99,6 +82,12 @@ const sortedPosts = computed(() => {
   margin: 0;
   font-size: 22px;
   color: #111;
+}
+
+.filter-tip {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #777;
 }
 
 .sort-group {
@@ -128,5 +117,12 @@ const sortedPosts = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.empty {
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  color: #666;
 }
 </style>
