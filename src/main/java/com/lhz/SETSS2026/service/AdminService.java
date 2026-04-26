@@ -2,6 +2,7 @@ package com.LHZ.SETSS2026.service;
 
 import com.LHZ.SETSS2026.dto.CommentDTO;
 import com.LHZ.SETSS2026.dto.PostDTO;
+import com.LHZ.SETSS2026.dto.UserAdminDTO;
 import com.LHZ.SETSS2026.entity.Comment;
 import com.LHZ.SETSS2026.entity.Post;
 import com.LHZ.SETSS2026.entity.Role;
@@ -27,8 +28,11 @@ public class AdminService {
     private final CommentRepository commentRepository;
 
     //查询所有用户（管理员）
-    public List<User> listAllUsers(){
-        return userRepository.findAll();
+    public List<UserAdminDTO> listAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(UserAdminDTO::fromEntity)
+                .toList();
     }
 
     //禁用用户
@@ -61,52 +65,12 @@ public class AdminService {
     }
 
     @Transactional
-    public PostDTO createPostByAdmin(PostDTO dto) {
-        if (dto.getUserId() == null) {
-            throw new RuntimeException("userId is required");
-        }
-
-        User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-
-        Post post = dto.toEntity(user);
-        if (post.getStatus() == null || post.getStatus().isBlank()) {
-            post.setStatus("PUBLISHED");
-        }
-        if (post.getIsPinned() == null) {
-            post.setIsPinned(false);
-        }
-        if (post.getCommentCount() == null) {
-            post.setCommentCount(0);
-        }
-        if (post.getViewCount() == null) {
-            post.setViewCount(0);
-        }
-
-        return PostDTO.fromEntity(postRepository.save(post));
-    }
-
-    @Transactional
-    public PostDTO updatePostByAdmin(Long postId, PostDTO dto) {
+    public void togglePin(Long postId, Boolean isPinned) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+                .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        if (dto.getUserId() != null && !dto.getUserId().equals(post.getUser().getId())) {
-            User user = userRepository.findById(dto.getUserId())
-                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
-            post.setUser(user);
-        }
-
-        dto.updateEntity(post);
-
-        if (dto.getIsPinned() != null) {
-            post.setIsPinned(dto.getIsPinned());
-        }
-        if (dto.getViewCount() != null && dto.getViewCount() >= 0) {
-            post.setViewCount(dto.getViewCount());
-        }
-
-        return PostDTO.fromEntity(postRepository.save(post));
+        post.setIsPinned(isPinned);
+        postRepository.save(post);
     }
 
     @Transactional

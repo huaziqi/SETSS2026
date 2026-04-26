@@ -78,7 +78,7 @@ const logout = () => {
           </BaseButton>
 
           <BaseButton
-            mode="light"
+            mode="dark"
             size="medium"
             @click="editing = !editing"
           >

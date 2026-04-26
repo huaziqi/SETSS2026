@@ -13,7 +13,7 @@ const htmlContent = computed(() => {
 })
 
 onMounted(() => {
-  fetchData('/api/admin/pages/schedule')
+  fetchData('/api/admin/pages/courses')
 })
 </script>
 
@@ -22,7 +22,7 @@ onMounted(() => {
     <Header />
 
     <main class="page">
-      <h1>{{ page?.title || 'Schedule' }}</h1>
+      <h1>{{ page?.title || 'Courses' }}</h1>
 
       <p v-if="loading">Loading...</p>
       <p v-else-if="error">Failed to load</p>

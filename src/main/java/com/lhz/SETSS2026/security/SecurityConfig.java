@@ -51,12 +51,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
                         // 公开查看帖子详情
                         .requestMatchers(HttpMethod.GET, "/api/posts/{postId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/pages/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/pages/**").authenticated()
                         // 我的帖子、发帖、修改、删除都需要登录
                         .requestMatchers("/api/posts/my/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/posts").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/posts/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/posts/**").authenticated()
                         .requestMatchers("/api/users").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 // 设置会话（Session）创建策略为无状态，符合JWT的认证方式

@@ -15,156 +15,162 @@ interface PostItem {
   isPinned: boolean
 }
 
-const emit = defineEmits<{ (e: 'posts-updated', posts: PostItem[]): void; (e: 'notify', payload: { type: 'success'|'error'; text: string }): void }>()
-const { data, fetchData, postData, putData, deleteData } = useApi()
+const emit = defineEmits<{
+  (e: 'posts-updated', posts: PostItem[]): void
+  (e: 'notify', payload: { type: 'success' | 'error'; text: string }): void
+}>()
+
+const { data, fetchData, putData, deleteData } = useApi()
 
 const posts = ref<PostItem[]>([])
 const postKeyword = ref('')
 const postStatusFilter = ref('ALL')
 
-const postForm = ref({
-  postId: null as number | null,
-  userId: '',
-  title: '',
-  content: '',
-  tag: '',
-  status: 'PUBLISHED',
-  isPinned: false
-})
-
 const filteredPosts = computed(() =>
   posts.value.filter(post => {
     const keyword = postKeyword.value.trim().toLowerCase()
-    const hitKeyword = !keyword ||
+
+    const hitKeyword =
+      !keyword ||
       post.title.toLowerCase().includes(keyword) ||
       post.content.toLowerCase().includes(keyword) ||
       (post.userName || '').toLowerCase().includes(keyword) ||
       (post.tag || '').toLowerCase().includes(keyword)
-    const hitStatus = postStatusFilter.value === 'ALL' || post.status === postStatusFilter.value
+
+    const hitStatus =
+      postStatusFilter.value === 'ALL' ||
+      post.status === postStatusFilter.value
+
     return hitKeyword && hitStatus
   })
 )
 
 const loadPosts = async () => {
-  await fetchData('/admin/posts')
-  posts.value = data.value?.data || []
+  await fetchData('/api/admin/posts')
+  posts.value = data.value?.data || data.value || []
   emit('posts-updated', posts.value)
 }
 
-const resetPostForm = () => {
-  postForm.value = {
-    postId: null,
-    userId: '',
-    title: '',
-    content: '',
-    tag: '',
-    status: 'PUBLISHED',
-    isPinned: false
-  }
-}
-
-const savePost = async () => {
+const togglePin = async (post: PostItem) => {
   try {
-    const payload = {
-      userId: Number(postForm.value.userId),
-      title: postForm.value.title,
-      content: postForm.value.content,
-      tag: postForm.value.tag,
-      status: postForm.value.status,
-      isPinned: postForm.value.isPinned
-    }
+    const nextPinned = !post.isPinned
 
-    if (postForm.value.postId) {
-      await putData(`/admin/posts/${postForm.value.postId}`, payload)
-      emit('notify', { type: 'success', text: 'Post updated successfully.' })
-    } else {
-      await postData('/admin/posts', payload)
-      emit('notify', { type: 'success', text: 'Post created successfully.' })
-    }
+    await putData(
+      `/api/admin/posts/${post.postId}/pin?isPinned=${nextPinned}`,
+      {}
+    )
 
-    resetPostForm()
+    emit('notify', {
+      type: 'success',
+      text: nextPinned ? 'Post pinned successfully.' : 'Post unpinned successfully.'
+    })
+
     await loadPosts()
   } catch {
-    emit('notify', { type: 'error', text: 'Failed to save post.' })
-  }
-}
-
-const editPost = (post: PostItem) => {
-  postForm.value = {
-    postId: post.postId,
-    userId: String(post.userId),
-    title: post.title,
-    content: post.content,
-    tag: post.tag || '',
-    status: post.status,
-    isPinned: !!post.isPinned
+    emit('notify', {
+      type: 'error',
+      text: 'Failed to update pinned status.'
+    })
   }
 }
 
 const removePost = async (postId: number) => {
   if (!confirm('Delete this post and all related comments?')) return
-  await deleteData(`/admin/posts/${postId}`)
-  emit('notify', { type: 'success', text: 'Post deleted successfully.' })
-  await loadPosts()
-}
 
-const quickTogglePin = async (post: PostItem) => {
-  await putData(`/admin/posts/${post.postId}`, {
-    isPinned: !post.isPinned
-  })
-  await loadPosts()
+  try {
+    await deleteData(`/api/admin/posts/${postId}`)
+
+    emit('notify', {
+      type: 'success',
+      text: 'Post deleted successfully.'
+    })
+
+    await loadPosts()
+  } catch {
+    emit('notify', {
+      type: 'error',
+      text: 'Failed to delete post.'
+    })
+  }
 }
 
 onMounted(loadPosts)
+
 defineExpose({ loadPosts })
 </script>
 
 <template>
   <section class="panel">
-    <h2>Post Management</h2>
+
     <div class="toolbar">
-      <input v-model="postKeyword" placeholder="Search by title/content/tag/author" />
+      <input
+        v-model="postKeyword"
+        placeholder="Search by title, content, tag, or author"
+      />
+
       <select v-model="postStatusFilter">
         <option value="ALL">All Status</option>
         <option value="PUBLISHED">Published</option>
         <option value="DRAFT">Draft</option>
         <option value="HIDDEN">Hidden</option>
       </select>
-      <button @click="resetPostForm">New Post</button>
-    </div>
-
-    <div class="form-grid">
-      <input v-model="postForm.userId" placeholder="Author User ID" />
-      <input v-model="postForm.title" placeholder="Post Title" />
-      <input v-model="postForm.tag" placeholder="Tag" />
-      <select v-model="postForm.status">
-        <option value="PUBLISHED">Published</option>
-        <option value="DRAFT">Draft</option>
-        <option value="HIDDEN">Hidden</option>
-      </select>
-      <label><input type="checkbox" v-model="postForm.isPinned" /> Pin Post</label>
-      <textarea v-model="postForm.content" rows="4" placeholder="Post Content"></textarea>
-      <button @click="savePost">{{ postForm.postId ? 'Update Post' : 'Create Post' }}</button>
     </div>
 
     <table class="data-table">
       <thead>
         <tr>
-          <th>ID</th><th>Title</th><th>Author</th><th>Status</th><th>Tag</th><th>Stats</th><th>Actions</th>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Status</th>
+          <th>Tag</th>
+          <th>Stats</th>
+          <th>Pinned</th>
+          <th>Actions</th>
         </tr>
       </thead>
+
       <tbody>
         <tr v-for="post in filteredPosts" :key="post.postId">
           <td>{{ post.postId }}</td>
-          <td>{{ post.title }}</td>
-          <td>{{ post.userName }} (#{{ post.userId }})</td>
-          <td>{{ post.status }}</td>
-          <td>{{ post.tag || '-' }}</td>
-          <td>{{ post.viewCount }} views · {{ post.commentCount }} comments · {{ post.isPinned ? 'Pinned' : 'Normal' }}</td>
+
           <td>
-            <button @click="editPost(post)">Edit</button>
-            <button @click="quickTogglePin(post)">{{ post.isPinned ? 'Unpin' : 'Pin' }}</button>
-            <button class="danger" @click="removePost(post.postId)">Delete</button>
+            <strong>{{ post.title }}</strong>
+            <span v-if="post.isPinned" class="pin-label">Pinned</span>
+          </td>
+
+          <td>
+            {{ post.userName || 'Unknown' }}
+            <span class="muted">#{{ post.userId }}</span>
+          </td>
+
+          <td>{{ post.status }}</td>
+
+          <td>{{ post.tag || '-' }}</td>
+
+          <td>
+            {{ post.viewCount }} views ·
+            {{ post.commentCount }} comments
+          </td>
+
+          <td>
+            {{ post.isPinned ? 'Yes' : 'No' }}
+          </td>
+
+          <td class="actions">
+            <button class="secondary" @click="togglePin(post)">
+              {{ post.isPinned ? 'Unpin' : 'Pin' }}
+            </button>
+
+            <button class="danger" @click="removePost(post.postId)">
+              Delete
+            </button>
+          </td>
+        </tr>
+
+        <tr v-if="filteredPosts.length === 0">
+          <td colspan="8" class="empty">
+            No posts found.
           </td>
         </tr>
       </tbody>
@@ -173,16 +179,115 @@ defineExpose({ loadPosts })
 </template>
 
 <style scoped>
-.panel { background: #fff; border: 1px solid #e5e5e5; padding: 24px; }
-.panel h2 { margin: 0 0 14px; }
-.toolbar { display: flex; gap: 10px; margin-bottom: 14px; }
-.toolbar input, .toolbar select, .toolbar button { height: 36px; }
-.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
-textarea { grid-column: 1 / -1; }
-input, select, textarea, button { border: 1px solid #ddd; border-radius: 6px; padding: 8px; font-size: 14px; }
-button { background: #111; color: #fff; cursor: pointer; }
-button.danger { background: #b42323; border-color: #b42323; }
-.data-table { width: 100%; border-collapse: collapse; }
-.data-table th, .data-table td { border: 1px solid #ececec; padding: 8px; text-align: left; vertical-align: top; }
-.data-table th { background: #fafafa; }
+.panel {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  padding: 24px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.panel h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.panel p {
+  margin: 6px 0 0;
+  color: #777;
+  font-size: 14px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.toolbar input {
+  flex: 1;
+}
+
+input,
+select,
+button {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+button {
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+button:hover {
+  opacity: 0.86;
+}
+
+button.secondary {
+  background: #fff;
+  color: #111;
+  border-color: #bbb;
+}
+
+button.danger {
+  background: #b42323;
+  border-color: #b42323;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  border: 1px solid #ececec;
+  padding: 9px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 14px;
+}
+
+.data-table th {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pin-label {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 6px;
+  border: 1px solid #111;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.muted {
+  color: #777;
+  margin-left: 4px;
+}
+
+.empty {
+  text-align: center;
+  color: #777;
+  padding: 24px;
+}
 </style>
