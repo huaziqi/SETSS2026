@@ -48,6 +48,9 @@ public class Manuscript {
     private Long fileSize;
 
     // 审稿员ID（可以存用户名/ID）
+    private Integer reviewerId;
+
+    // 审稿员
     private String reviewer;
 
     // 评审结果（意见）
