@@ -121,48 +121,25 @@ public class ManuController {
 
 
 
-        //查询所有稿件
-    @GetMapping("/list")
-    public Result listManuscripts() {
-        //分配稿件
-        @PostMapping("/assign")
-        public Result assignManuscript(@RequestBody AssignManuscriptRequest request) {
-            try {
-                Manuscript manuscript = manuService.assignManuscript(
-                        request.getManuscriptId(),
-                        request.getReviewerId()
-                );
-                return Result.success("稿件分配成功", manuscript);
-            } catch (Exception e) {
-                return Result.error("稿件分配失败：" + e.getMessage());
-            }
+
+
+    //分配稿件
+    @PostMapping("/assign")
+    public Result assignManuscript(@RequestBody AssignManuscriptRequest request) {
+        try {
+            Manuscript manuscript = manuService.assignManuscript(
+                    request.getManuscriptId(),
+                    request.getReviewerId()
+            );
+            return Result.success("稿件分配成功", manuscript);
+        } catch (Exception e) {
+            return Result.error("稿件分配失败：" + e.getMessage());
         }
+    }
 
     //查询所有稿件
-        @GetMapping("/list")
-        public Result listManuscripts() {
-            try {
-                List<Manuscript> list = manuService.getAllManuscripts();
-                return Result.success(list);
-            } catch (Exception e) {
-                return Result.error("查询失败：" + e.getMessage());
-            }
-        }
-
-        //根据状态查询稿件
-        @GetMapping("/status/{status}")
-        public Result getManuscriptsByStatus(@PathVariable String status) {
-            try {
-                List<Manuscript> list = manuService.getManuscriptsByStatus(status);
-                return Result.success(list);
-            } catch (Exception e) {
-                return Result.error("查询失败：" + e.getMessage());
-            }
-        }
-
-        //根据审稿人查询稿件
-        @GetMapping("/status/{status}")
-        public Result getManuscriptsByReviewer(@PathVariable String reviewer) {
+    @GetMapping("/list")
+    public Result listManuscripts() {
         try {
             List<Manuscript> list = manuService.getAllManuscripts();
             return Result.success(list);

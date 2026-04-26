@@ -43,7 +43,7 @@ public class AuthController {
 
     @GetMapping("/validate")
     public UserInfoResponse validateUser(String token){
-        return userService.getUserInfoByTokrn(token);
+        return userService.getUserInfoByToken(token);
     }
 
     @PostMapping("/check-token")
