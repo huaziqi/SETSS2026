@@ -171,7 +171,7 @@ public class ManuService {
         existingManuscript.setIntroduction(manuscript.getIntroduction());
         existingManuscript.setAuthor(manuscript.getAuthor());
         existingManuscript.setStatus(manuscript.getStatus());
-        existingManuscript.setReviewer(manuscript.getReviewer());
+        existingManuscript.setReviewerId(manuscript.getReviewerId());
         existingManuscript.setReviewResult(manuscript.getReviewResult());
         existingManuscript.setUpdateTime(LocalDateTime.now());
 
@@ -314,7 +314,7 @@ public class ManuService {
         }
 
         manuscript.setStatus("已分配");
-        manuscript.setReviewer(String.valueOf(reviewerId));
+        manuscript.setReviewerId(reviewerId);
         manuscript.setUpdateTime(LocalDateTime.now());
 
         return manuRepository.save(manuscript);

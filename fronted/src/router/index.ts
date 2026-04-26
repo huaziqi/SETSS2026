@@ -17,13 +17,7 @@ import Courses from "@/views/Info/Courses.vue";
 import About from "@/views/Info/About.vue";
 import ConferencePageEditor from "@/views/admin/ConferencePageEditor.vue";
 
-import Submit from "../views/manu/Submit2.vue";
-
-import AdminDashboard from "@/views/admin/AdminDashboard.vue";
-
-import UserManagement from "@/views/admin/UserManagement.vue";
-
-import ManuscriptManagement from "@/views/admin/ManuscriptManagement.vue";
+import Submit from "../views/submitmanu/Submit.vue";
 
 const routes = [
   { path: "/", component: Home },

@@ -161,7 +161,7 @@ public class ManuController {
         }
 
         //根据审稿人查询稿件
-        @GetMapping("/status/{status}")
+        @GetMapping("/reviewer/{reviewer}")
         public Result getManuscriptsByReviewer(@PathVariable String reviewer) {
         try {
             List<Manuscript> list = manuService.getAllManuscripts();

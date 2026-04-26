@@ -43,6 +43,7 @@ public class SecurityConfig {
                         ).permitAll() // 允许匿名访问的请求路径
                         .requestMatchers("/api/users").hasRole("ADMIN") // 配置需要ADMIN角色的访问路径
                         .requestMatchers("/manuscript/assign").hasAnyRole("ADMIN", "CHAIR")//CHAIR角色
+                        .requestMatchers("/review/**").hasRole("REVIEWER")//REVIEWER角色
                         .anyRequest().authenticated() // 所有其他请求都必须已认证
                 ) // 请求路径的访问控制配置
                 // 设置会话（Session）创建策略为无状态，符合JWT的认证方式

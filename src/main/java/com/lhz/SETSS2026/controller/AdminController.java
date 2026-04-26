@@ -1,6 +1,9 @@
 package com.LHZ.SETSS2026.controller;
 
 import com.LHZ.SETSS2026.common.result.Result;
+import com.LHZ.SETSS2026.dto.ConferencePageDTO;
+import com.LHZ.SETSS2026.service.AdminService;
+import com.LHZ.SETSS2026.service.ConferencePageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
