@@ -121,22 +121,21 @@ public class ManuController {
 
 
 
-        //查询所有稿件
-    @GetMapping("/list")
-    public Result listManuscripts() {
-        //分配稿件
-        @PostMapping("/assign")
-        public Result assignManuscript(@RequestBody AssignManuscriptRequest request) {
-            try {
-                Manuscript manuscript = manuService.assignManuscript(
-                        request.getManuscriptId(),
-                        request.getReviewerId()
-                );
-                return Result.success("稿件分配成功", manuscript);
-            } catch (Exception e) {
-                return Result.error("稿件分配失败：" + e.getMessage());
-            }
+
+
+    //分配稿件
+    @PostMapping("/assign")
+    public Result assignManuscript(@RequestBody AssignManuscriptRequest request) {
+        try {
+            Manuscript manuscript = manuService.assignManuscript(
+                    request.getManuscriptId(),
+                    request.getReviewerId()
+            );
+            return Result.success("稿件分配成功", manuscript);
+        } catch (Exception e) {
+            return Result.error("稿件分配失败：" + e.getMessage());
         }
+    }
 
     //查询所有稿件
         @GetMapping("/list")

@@ -12,10 +12,6 @@ import MyPosts from "../views/forum/MyPosts.vue";
 import MyManuscripts from "../views/manu/MyManuscripts.vue";
 import ManuUpdate from "@/views/manu/ManuUpdate.vue";
 import PostDetail from "../views/forum/PostDetail.vue";
-import Admin from "../views/admin/Admin.vue";
-import Courses from "@/views/Info/Courses.vue";
-import About from "@/views/Info/About.vue";
-import ConferencePageEditor from "@/views/admin/ConferencePageEditor.vue";
 
 import Submit from "../views/submitmanu/Submit.vue";
 
@@ -47,18 +43,6 @@ const routes = [
   { path: "/forum/post/:postId", component: PostDetail },
 
   { path: "/submit", component: Submit },
-  { path : "/courses", component: Courses },
-  { path: "/about", component: About },
-  { path: "/admin/", component: ConferencePageEditor },
-
-  { path: '/admin/conference/edit/:pageKey',component: ConferencePageEditor },
-  // Admin
-
-  {
-    path: "/admin",
-    component: Admin,
-  },
-
 ];
 
 const router = createRouter({

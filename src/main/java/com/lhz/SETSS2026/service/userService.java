@@ -88,7 +88,7 @@ public class UserService {
         return new AuthResponse(token, user.getId());
     }
 
-    public UserInfoResponse getUserInfoByTokrn(String token){ //根据token判断
+    public UserInfoResponse getUserInfoByToken(String token){ //根据token判断
         UserInfoResponse userInfo = new UserInfoResponse();
         System.out.println(token);
         System.out.println(jwtUtil.validateToken(token));
