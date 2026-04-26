@@ -37,13 +37,31 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // 禁用CSRF跨站请求伪造防护
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/", "/*.html", // 静态页面和根路径
-                                "/api/auth/register", "/api/auth/login", "/api/auth/validate", // 登录与注册请求
-                                "/chat/**","/avatars/**"
-                        ).permitAll() // 允许匿名访问的请求路径
-                        .requestMatchers("/api/users").hasRole("ADMIN") // 配置需要ADMIN角色的访问路径
-                        .requestMatchers("/manuscript/assign").hasAnyRole("ADMIN", "CHAIR")//CHAIR角色
-                        .anyRequest().authenticated() // 所有其他请求都必须已认证
+                                "/",
+                                "/*.html",
+                                "/api/auth/register",
+                                "/api/auth/login",
+                                "/api/auth/validate",
+                                "/chat/**",
+                                "/avatars/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/posts/*/comments").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/posts/*/comments").authenticated()
+                        // 公开查看帖子列表
+                        .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
+                        // 公开查看帖子详情
+                        .requestMatchers(HttpMethod.GET, "/api/posts/{postId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/pages/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/pages/**").authenticated()
+                        // 我的帖子、发帖、修改、删除都需要登录
+                        .requestMatchers("/api/posts/my/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/posts").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/posts/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/posts/**").authenticated()
+                        .requestMatchers("/api/users").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
+
                 ) // 请求路径的访问控制配置
                 // 设置会话（Session）创建策略为无状态，符合JWT的认证方式
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
