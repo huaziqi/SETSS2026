@@ -18,6 +18,12 @@ import ConferencePageEditor from "@/views/admin/ConferencePageEditor.vue";
 
 import Submit from "../views/submitmanu/Submit.vue";
 
+import AdminDashboard from '@/views/admin/AdminDashboard.vue'
+
+import UserManagement from '@/views/admin/UserManagement.vue'
+
+import ManuscriptManagement from '@/views/admin/ManuscriptManagement.vue'
+
 const routes = [
   { path: "/", component: Home },
   { path: "/login", component: Login },
@@ -35,14 +41,24 @@ const routes = [
   {path : '/forum/post/:postId', component: PostDetail},
 
   { path: "/submit", component: Submit },
-  { path: '/admin/conference/edit/:pageKey',component: ConferencePageEditor },
-  { path : '/schedule', component: Schedule },
-  { path: '/courses', component: Courses },
-  { path: '/about', component: About },
 
-  
+  // Admin
 
-  { path: "/admin", component: Admin },
+  {
+    path: "/admin",
+    component: AdminDashboard
+  },
+
+  {
+    path: "/admin/users",
+    component: UserManagement
+  },
+
+  {
+    path: "/admin/manuscripts",
+    component: ManuscriptManagement
+  }
+
 ];
 
 const router = createRouter({

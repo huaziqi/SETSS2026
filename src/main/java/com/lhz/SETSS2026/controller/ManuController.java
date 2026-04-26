@@ -1,6 +1,7 @@
 package com.LHZ.SETSS2026.controller;
 
 import com.LHZ.SETSS2026.common.result.Result;
+import com.LHZ.SETSS2026.dto.review.AssignManuscriptRequest;
 import com.LHZ.SETSS2026.entity.Manuscript;
 import com.LHZ.SETSS2026.service.ManuService;
 import lombok.RequiredArgsConstructor;
@@ -63,7 +64,21 @@ public class ManuController {
             }
         }
 
-        //查询所有稿件
+        //分配稿件
+        @PostMapping("/assign")
+        public Result assignManuscript(@RequestBody AssignManuscriptRequest request) {
+            try {
+                Manuscript manuscript = manuService.assignManuscript(
+                        request.getManuscriptId(),
+                        request.getReviewerId()
+                );
+                return Result.success("稿件分配成功", manuscript);
+            } catch (Exception e) {
+                return Result.error("稿件分配失败：" + e.getMessage());
+            }
+        }
+
+    //查询所有稿件
         @GetMapping("/list")
         public Result listManuscripts() {
             try {
@@ -75,6 +90,7 @@ public class ManuController {
         }
 
         //根据状态查询稿件
+        @GetMapping("/status/{status}")
         public Result getManuscriptsByStatus(@PathVariable String status) {
             try {
                 List<Manuscript> list = manuService.getManuscriptsByStatus(status);
@@ -85,6 +101,7 @@ public class ManuController {
         }
 
         //根据审稿人查询稿件
+        @GetMapping("/status/{status}")
         public Result getManuscriptsByReviewer(@PathVariable String reviewer) {
         try {
             List<Manuscript> list = manuService.getManuscriptsByReviewer(reviewer);
@@ -95,6 +112,7 @@ public class ManuController {
         }
 
         //根据作者查询稿件
+        @GetMapping("/author/{author}")
         public  Result getManuscriptsByAuthor(@PathVariable String author){
             try{
                 List<Manuscript> list = manuService.getManuscriptsByAuthor(author);
@@ -105,6 +123,7 @@ public class ManuController {
         }
 
         //根据ID查询稿件
+        @GetMapping("/{manuId}")
         public Result getManuscriptById(@PathVariable Integer manuId) {
             try {
                 return manuService.getManuscriptById(manuId)
@@ -114,7 +133,6 @@ public class ManuController {
             } catch (Exception e) {
                 return Result.error("查询失败：" + e.getMessage());
             }
-
         }
 
 }
