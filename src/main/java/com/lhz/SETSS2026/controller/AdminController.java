@@ -44,46 +44,44 @@ public class AdminController {
     }
 
     @GetMapping("/posts")
-    public Result<List<PostDTO>> listPosts() {
-        return Result.success(adminService.listAllPosts());
+    public List<PostDTO> listPosts() {
+        return adminService.listAllPosts();
     }
 
     @PostMapping("/posts")
-    public Result<PostDTO> createPost(@RequestBody PostDTO dto) {
-        return Result.success(adminService.createPostByAdmin(dto));
+    public PostDTO createPost(@RequestBody PostDTO dto) {
+        return adminService.createPostByAdmin(dto);
     }
 
     @PutMapping("/posts/{postId}")
-    public Result<PostDTO> updatePost(@PathVariable Long postId, @RequestBody PostDTO dto) {
-        return Result.success(adminService.updatePostByAdmin(postId, dto));
+    public PostDTO updatePost(@PathVariable Long postId, @RequestBody PostDTO dto) {
+        return adminService.updatePostByAdmin(postId, dto);
     }
 
     @DeleteMapping("/posts/{postId}")
-    public Result<String> deletePost(@PathVariable Long postId) {
+    public void deletePost(@PathVariable Long postId) {
         adminService.deletePostByAdmin(postId);
-        return Result.success("Post deleted");
     }
 
     @GetMapping("/comments")
-    public Result<List<CommentDTO>> listComments(@RequestParam(required = false) Long postId) {
-        return Result.success(adminService.listComments(postId));
+    public List<CommentDTO> listComments(@RequestParam(required = false) Long postId) {
+        return adminService.listComments(postId);
     }
 
     @PostMapping("/comments")
-    public Result<CommentDTO> createComment(@RequestParam Long postId,
-                                            @RequestParam Integer userId,
-                                            @RequestBody CommentDTO dto) {
-        return Result.success(adminService.createCommentByAdmin(postId, userId, dto));
+    public CommentDTO createComment(@RequestParam Long postId,
+                                    @RequestParam Integer userId,
+                                    @RequestBody CommentDTO dto) {
+        return adminService.createCommentByAdmin(postId, userId, dto);
     }
 
     @PutMapping("/comments/{commentId}")
-    public Result<CommentDTO> updateComment(@PathVariable Long commentId, @RequestBody CommentDTO dto) {
-        return Result.success(adminService.updateCommentByAdmin(commentId, dto));
+    public CommentDTO updateComment(@PathVariable Long commentId, @RequestBody CommentDTO dto) {
+        return adminService.updateCommentByAdmin(commentId, dto);
     }
 
     @DeleteMapping("/comments/{commentId}")
-    public Result<String> deleteComment(@PathVariable Long commentId) {
+    public void deleteComment(@PathVariable Long commentId) {
         adminService.deleteCommentByAdmin(commentId);
-        return Result.success("Comment deleted");
     }
 }
