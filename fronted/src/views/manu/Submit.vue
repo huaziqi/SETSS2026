@@ -7,6 +7,10 @@ import SETSSLogo from "../../components/SETSSLogo.vue";
 
 const router = useRouter();
 
+// 定义组件级别的全局状态 (Ref)
+const userId = ref<string>("");
+const userToken = ref<string>("");
+
 // 状态定义
 const name = ref("");
 const title = ref("");
@@ -17,11 +21,66 @@ const loading = ref(false);
 const errorMsg = ref("");
 const successMsg = ref("");
 
-// 登录检查
-onMounted(() => {
-  const token = localStorage.getItem("token");
-  const id = localStorage.getItem("id");
-  if (!token || !id) {
+// 返回主页函数
+const goBack = () => {
+  router.push("/");
+};
+
+// Token 有效性校验函数
+const checkTokenValidity = async (): Promise<boolean> => {
+  // 直接使用组件状态的 .value
+  const idVal = userId.value;
+  const tokenVal = userToken.value;
+
+  if (!idVal || !tokenVal) return false;
+
+  try {
+    const numericId = parseInt(idVal, 10);
+    if (isNaN(numericId)) {
+      console.error("Invalid ID format:", idVal);
+      return false;
+    }
+
+    const response = await axios.post("/api/auth/check-token", null, {
+      params: {
+        id: numericId,
+        token: tokenVal,
+      },
+    });
+
+    if (response.data && response.data.code === 200) {
+      return true;
+    } else {
+      console.warn("Token check failed:", response.data.message);
+      return false;
+    }
+  } catch (error: any) {
+    console.error("Token check error:", error);
+    return false;
+  }
+};
+
+// 登录检查与初始化
+onMounted(async () => {
+  // 从 localStorage 获取并赋值给 ref
+  const storedToken = localStorage.getItem("accessToken");
+  const storedId = localStorage.getItem("id");
+
+  if (!storedToken || !storedId) {
+    localStorage.clear();
+    router.replace("/login");
+    return;
+  }
+
+  // 正确赋值方式：使用 .value
+  userToken.value = storedToken;
+  userId.value = storedId;
+
+  // 此时 token 和 id 必定是非空字符串
+  const isValid = await checkTokenValidity();
+
+  if (!isValid) {
+    localStorage.clear();
     router.replace("/login");
   }
 });
@@ -37,7 +96,7 @@ const handleFileChange = (event: Event) => {
   }
 };
 
-// 🔥 2. 文件校验逻辑
+// 2. 文件校验逻辑
 const validateFile = (file: File): string | null => {
   // 允许的后缀名
   const allowedExtensions = [
@@ -68,7 +127,7 @@ const validateFile = (file: File): string | null => {
   return null; // 校验通过
 };
 
-// 🔥 3. 提交处理
+// 3. 提交处理
 const handleSubmit = async () => {
   // 重置消息
   errorMsg.value = "";
@@ -80,11 +139,8 @@ const handleSubmit = async () => {
     return;
   }
 
-  // 2. 获取用户信息
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("id");
-
-  if (!token || !userId) {
+  // 使用组件全局状态，无需再次从 localStorage 获取
+  if (!userToken.value || !userId.value) {
     errorMsg.value = "Session expired. Please login again.";
     router.replace("/login");
     return;
@@ -103,7 +159,7 @@ const handleSubmit = async () => {
     // 4. 构建 FormData
     const formData = new FormData();
     formData.append("name", name.value);
-    formData.append("id", userId);
+    formData.append("id", userId.value);
     formData.append("title", title.value);
     formData.append("introduction", introduce.value);
     formData.append("file", file.value);
@@ -112,13 +168,12 @@ const handleSubmit = async () => {
 
     const response = await axios.post("/api/manuscript/submit", formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${userToken.value}`,
         // 注意：不要手动设置 Content-Type: multipart/form-data，axios 会自动处理 boundary
       },
     });
 
     // 6. 处理响应
-    // 假设后端返回结构为 Result { code: 200, message: "...", data: ... }
     if (response.data && response.data.code === 200) {
       successMsg.value = response.data.message || "Submission successful!";
 

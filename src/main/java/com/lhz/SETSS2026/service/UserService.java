@@ -8,11 +8,13 @@ import com.LHZ.SETSS2026.dto.AuthResponse;
 import com.LHZ.SETSS2026.entity.Role;
 import com.LHZ.SETSS2026.entity.User;
 import com.LHZ.SETSS2026.security.JwtUtil;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserService {
@@ -20,12 +22,15 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final JwtUtil jwtUtil;
+    private static final String prefix = "user:roles:";
+    final private StringRedisTemplate stringRedisTemplate;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, JwtUtil jwtUtil) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, JwtUtil jwtUtil, StringRedisTemplate stringRedisTemplate) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.jwtUtil = jwtUtil;
+        this.stringRedisTemplate = stringRedisTemplate;
     }
 
 
@@ -73,6 +78,12 @@ public class UserService {
             throw new RuntimeException("账户已被禁用");
         }
 
+        user.setIsOnline(true);
+        userRepository.save(user);
+
+        String onlineKey = "user:online:" + user.getId();
+        stringRedisTemplate.opsForValue().set(onlineKey, "1", 60, TimeUnit.MINUTES);
+
         String token = jwtUtil.generateToken(String.valueOf(user.getId()), user.getName());
         return new AuthResponse(token, user.getId());
     }
@@ -94,5 +105,19 @@ public class UserService {
 
     }
 
+    public boolean checkToken(Integer userId, String token) {
+        if (!jwtUtil.validateToken(token)) {
+            return false;
+        }
+
+        String extractedId = jwtUtil.extractId(token);
+        if (extractedId == null || !extractedId.equals(String.valueOf(userId))) {
+            return false;
+        }
+
+        String onlineKey = "user:online:" + userId;
+
+        return stringRedisTemplate.hasKey(onlineKey);
+    }
 
 }

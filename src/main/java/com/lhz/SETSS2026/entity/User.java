@@ -34,6 +34,9 @@ public class User implements Serializable {
     @Column(name = "enable", nullable = false)
     private Boolean enable = true;
 
+    @Column(name = "is_online")
+    private Boolean isOnline = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", referencedColumnName = "id")
     private Role role;

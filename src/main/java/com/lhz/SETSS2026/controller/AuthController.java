@@ -1,11 +1,11 @@
 package com.LHZ.SETSS2026.controller;
 
 
+import com.LHZ.SETSS2026.common.result.Result;
 import com.LHZ.SETSS2026.dto.AuthRequest;
 import com.LHZ.SETSS2026.dto.AuthResponse;
 import com.LHZ.SETSS2026.dto.RegisterRequest;
 import com.LHZ.SETSS2026.dto.UserInfoResponse;
-import com.LHZ.SETSS2026.entity.User;
 import com.LHZ.SETSS2026.service.JwtAuthService;
 import com.LHZ.SETSS2026.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -19,6 +19,7 @@ import java.util.Map;
 public class AuthController {
     private final UserService userService;
     private final JwtAuthService jwtAuthService;
+
 
     public AuthController(UserService userService, JwtAuthService jwtAuthService) {
         this.userService = userService;
@@ -44,6 +45,22 @@ public class AuthController {
     public UserInfoResponse validateUser(String token){
         return userService.getUserInfoByTokrn(token);
     }
+
+    @PostMapping("/check-token")
+    public Result checkToken(@RequestParam Integer id, @RequestParam String token) {
+        try {
+            boolean isValid = userService.checkToken(id, token);
+            if (isValid) {
+                return Result.success("ok");
+            } else {
+                return Result.error("Token无效");
+            }
+        } catch (Exception e) {
+            return Result.error("校验失败：" + e.getMessage());
+        }
+    }
+
+
 
 
 }

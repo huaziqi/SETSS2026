@@ -1,43 +1,45 @@
 <script setup lang="ts">
-import { onMounted, computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useApi } from '@/utils/useApi'
-import BaseButton from '@/components/BaseButton.vue'
-import ProfileEditForm from '@/components/ProfileEditForm.vue'
+import { onMounted, computed, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useApi } from "@/utils/useApi";
+import BaseButton from "@/components/BaseButton.vue";
+import ProfileEditForm from "@/components/ProfileEditForm.vue";
 
-const router = useRouter()
-const { fetchData, data, loading, error } = useApi()
+const router = useRouter();
+const { fetchData, data, loading, error } = useApi();
 
-const editing = ref(false)
+const editing = ref(false);
 
 onMounted(() => {
-  fetchData('/api/auth/validate?token=' + localStorage.getItem('accessToken'))
-})
+  fetchData("/api/auth/validate?token=" + localStorage.getItem("accessToken"));
+});
 
-const isAdmin = computed(() => data.value?.role === 'ROLE_ADMIN')
+const isAdmin = computed(() => data.value?.role === "ROLE_ADMIN");
 
 const avatarText = computed(() => {
-  return data.value?.userName?.charAt(0)?.toUpperCase() || 'U'
-})
+  return data.value?.userName?.charAt(0)?.toUpperCase() || "U";
+});
 
 const roleText = computed(() => {
-  if (data.value?.role === 'ROLE_ADMIN') return 'Administrator'
-  if (data.value?.role === 'ROLE_USER') return 'Regular User'
-  return data.value?.role || 'User'
-})
+  if (data.value?.role === "ROLE_ADMIN") return "Administrator";
+  if (data.value?.role === "ROLE_USER") return "Regular User";
+  return data.value?.role || "User";
+});
 
 const goConsole = () => {
-  router.push('/admin')
-}
+  router.push("/admin");
+};
 
 const goBack = () => {
-  router.push('/')
-}
+  router.push("/");
+};
 
 const logout = () => {
-  localStorage.removeItem('accessToken')
-  router.push('/login')
-}
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("id");
+
+  router.push("/login");
+};
 </script>
 
 <template>
@@ -45,23 +47,21 @@ const logout = () => {
     <div class="profile-layout">
       <section class="profile-header">
         <div class="header-left">
-          <button class="back-btn" @click="goBack" title="Back Home">
-            ←
-          </button>
+          <button class="back-btn" @click="goBack" title="Back Home">←</button>
 
           <div class="avatar">
             {{ avatarText }}
           </div>
 
           <div class="header-info">
-            <h1>{{ data?.userName || 'Profile' }}</h1>
+            <h1>{{ data?.userName || "Profile" }}</h1>
             <p>Manage your personal information and account status.</p>
 
             <div v-if="data" class="meta-line">
               <span class="role-pill">{{ roleText }}</span>
               <span class="dot"></span>
               <span class="status-text" :class="{ disabled: !data.enable }">
-                {{ data.enable ? 'Active account' : 'Disabled account' }}
+                {{ data.enable ? "Active account" : "Disabled account" }}
               </span>
             </div>
           </div>
@@ -77,12 +77,8 @@ const logout = () => {
             Admin Console
           </BaseButton>
 
-          <BaseButton
-            mode="light"
-            size="medium"
-            @click="editing = !editing"
-          >
-            {{ editing ? 'Cancel' : 'Edit Profile' }}
+          <BaseButton mode="light" size="medium" @click="editing = !editing">
+            {{ editing ? "Cancel" : "Edit Profile" }}
           </BaseButton>
         </div>
       </section>
@@ -107,7 +103,7 @@ const logout = () => {
             <div class="info-list">
               <div class="info-row">
                 <span class="label">Username</span>
-                <span class="value">{{ data.userName || 'Not set' }}</span>
+                <span class="value">{{ data.userName || "Not set" }}</span>
               </div>
 
               <div class="info-row">
@@ -119,7 +115,7 @@ const logout = () => {
                 <span class="label">Status</span>
                 <span class="value status-value">
                   <i :class="{ disabled: !data.enable }"></i>
-                  {{ data.enable ? 'Active' : 'Disabled' }}
+                  {{ data.enable ? "Active" : "Disabled" }}
                 </span>
               </div>
             </div>
@@ -134,12 +130,12 @@ const logout = () => {
             <div class="info-list">
               <div class="info-row">
                 <span class="label">Email</span>
-                <span class="value">{{ data.email || 'Not set' }}</span>
+                <span class="value">{{ data.email || "Not set" }}</span>
               </div>
 
               <div class="info-row">
                 <span class="label">Phone</span>
-                <span class="value">{{ data.phone || 'Not set' }}</span>
+                <span class="value">{{ data.phone || "Not set" }}</span>
               </div>
             </div>
           </section>
