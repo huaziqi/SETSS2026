@@ -52,10 +52,7 @@ onMounted(() => {
     <Header />
 
     <main class="forum-main">
-      <section class="forum-hero">
-        <h1>Forum</h1>
-        <p>Discuss conference topics, ask questions, and share ideas.</p>
-      </section>
+
 
       <div v-if="loading" class="message">Loading posts...</div>
       <div v-else-if="error" class="message error">Failed to load posts.</div>

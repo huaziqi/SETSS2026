@@ -10,6 +10,7 @@ import Schedule from "../views/Info/Schedule.vue";
 import ForumWrite from "../views/forum/ForumWrite.vue";
 import MyPosts from "../views/forum/MyPosts.vue";
 import PostDetail from "../views/forum/PostDetail.vue";
+import Admin from "../views/admin/Admin.vue";
 
 import Submit from "../views/submitmanu/Submit.vue";
 
@@ -30,6 +31,9 @@ const routes = [
   {path : '/forum/post/:postId', component: PostDetail},
 
   { path: "/submit", component: Submit },
+
+
+  { path: "/admin", component: Admin },
 ];
 
 const router = createRouter({
