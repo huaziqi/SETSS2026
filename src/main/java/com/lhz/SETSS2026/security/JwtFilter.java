@@ -44,12 +44,10 @@ public class JwtFilter extends OncePerRequestFilter {
             return true;
         }
 
-        if ("GET".equalsIgnoreCase(method) && path.startsWith("/api/pages/")) {
+        if ("GET".equalsIgnoreCase(method) && path.startsWith("/api/admin/pages/")) {
             System.out.println("请求pages：" + path);
             return true;
         }
-
-
         return false;
     }
     // 白名单路径统一管理

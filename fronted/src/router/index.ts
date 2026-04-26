@@ -12,6 +12,8 @@ import MyPosts from "../views/forum/MyPosts.vue";
 import MyManuscripts from "../views/manu/MyManuscripts.vue";
 import ManuUpdate from "@/views/manu/ManuUpdate.vue";
 import PostDetail from "../views/forum/PostDetail.vue";
+import About from "@/views/Info/About.vue";
+import Courses from "@/views/Info/Courses.vue";
 
 import Submit from "../views/manu/Submit2.vue";
 
@@ -21,6 +23,8 @@ const routes = [
   { path: "/register", component: Register },
 
   { path: "/schedule", component: Schedule },
+  { path: "/about", component: About },
+  { path: "/courses", component: Courses },
 
   { path: "/profile", component: Profile },
   { path: "/testcomp", component: ComponentsTest },
