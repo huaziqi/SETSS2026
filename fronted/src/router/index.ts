@@ -47,23 +47,18 @@ const routes = [
   { path: "/forum/post/:postId", component: PostDetail },
 
   { path: "/submit", component: Submit },
+  { path : "/courses", component: Courses },
+  { path: "/about", component: About },
+  { path: "/admin/", component: ConferencePageEditor },
 
+  { path: '/admin/conference/edit/:pageKey',component: ConferencePageEditor },
   // Admin
 
   {
     path: "/admin",
-    component: AdminDashboard,
+    component: Admin,
   },
 
-  {
-    path: "/admin/users",
-    component: UserManagement,
-  },
-
-  {
-    path: "/admin/manuscripts",
-    component: ManuscriptManagement,
-  },
 ];
 
 const router = createRouter({
