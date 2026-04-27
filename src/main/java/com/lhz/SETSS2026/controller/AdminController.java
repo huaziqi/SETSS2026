@@ -97,6 +97,16 @@ public class AdminController {
         return Result.success(conferencePageService.getPageByKey(pageKey));
     }
 
+    @GetMapping("/{pageKey}")
+    public ConferencePageDTO getPageByKey(
+            @PathVariable String pageKey,
+            @RequestParam(required = false) String anchorId,
+            @RequestParam(required = false) Integer blockStart,
+            @RequestParam(required = false) Integer blockEnd
+    ) {
+        return conferencePageService.getPageByKey(pageKey, anchorId, blockStart, blockEnd);
+    }
+
     // 更新页面内容（核心接口）
     @PutMapping("/pages/{pageKey}")
     public Result updatePage(@PathVariable String pageKey,

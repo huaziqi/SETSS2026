@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BaseButton from "../components/BaseButton.vue";
+import SemanticSearchBox from "../components/semantic/SemanticSearchBox.vue"
 import { ref, onMounted } from "vue";
 import { useApi } from "../utils/useApi";
 
@@ -52,8 +53,12 @@ const menu = [
         {{ item.label }}
       </div>
     </nav>
+    <div class="right">
+      <SemanticSearchBox/>
 
-    <div class="profile">
+
+        <div class="profile">
+
       <!-- 未登录 -->
       <template v-if="!isLogin">
         <router-link to="/register">
@@ -86,34 +91,43 @@ const menu = [
         </router-link>
       </template>
     </div>
+  </div>
+
   </header>
 </template>
 
 <style scoped>
 .header {
-  height: 72px; /* 稍微加高一点更高级 */
+  position: relative;
+  height: 72px;
   padding: 0 48px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-
   background: #ffffff;
-
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* 加一点阴影增加层次感 */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  z-index: 100;
 }
 
-/* Logo */
 .logo {
   font-size: 34px;
   font-weight: 600;
   color: #000;
-  letter-spacing: 0px;
+  letter-spacing: 0;
+  white-space: nowrap;
+  cursor: pointer;
+  z-index: 2;
 }
 
 .nav {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
+  align-items: center;
   gap: 36px;
+  white-space: nowrap;
 }
 
 .nav-item {
@@ -122,12 +136,10 @@ const menu = [
   color: #000;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s ease;
-
+  transition: opacity 0.2s ease;
   letter-spacing: 0.5px;
 }
 
-/* hover */
 .nav-item:hover {
   opacity: 0.6;
 }
@@ -141,10 +153,21 @@ const menu = [
   height: 2px;
   background: #000;
 }
+
+.right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 2;
+}
+
 .profile {
   display: flex;
+  align-items: center;
   gap: 12px;
 }
+
 .user-box {
   display: flex;
   align-items: center;
@@ -155,12 +178,10 @@ const menu = [
   max-width: 160px;
 }
 
-/* hover效果 */
 .user-box:hover {
   opacity: 0.7;
 }
 
-/* 头像 */
 .avatar {
   width: 32px;
   height: 32px;
@@ -169,6 +190,7 @@ const menu = [
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .avatar svg {
@@ -176,12 +198,10 @@ const menu = [
   height: 18px;
 }
 
-/* 用户名（重点） */
 .username {
   font-size: 18px;
   max-width: 100px;
   font-weight: 500;
-
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

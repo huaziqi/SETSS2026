@@ -97,12 +97,13 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<?> getPostDetail(@PathVariable Long postId) {
-        try {
-            return ResponseEntity.ok(postService.getPostDetail(postId));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
-        }
+    public PostDTO getPostDetail(
+            @PathVariable Long postId,
+            @RequestParam(required = false) String anchorId,
+            @RequestParam(required = false) Integer blockStart,
+            @RequestParam(required = false) Integer blockEnd
+    ) {
+        return postService.getPostDetail(postId, anchorId, blockStart, blockEnd);
     }
+
 }
