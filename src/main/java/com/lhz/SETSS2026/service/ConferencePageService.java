@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ConferencePageService {
-
+    private final MarkdownRenderService markdownRenderService;
     private final ConferencePageRepository conferencePageRepository;
+    private final ArticleEmbeddingService articleEmbeddingService;
 
     public List<ConferencePageDTO> listPages() {
         return conferencePageRepository.findAll()
@@ -23,11 +23,26 @@ public class ConferencePageService {
                 .toList();
     }
 
-    public ConferencePageDTO getPageByKey(String pageKey) {
+
+    public ConferencePageDTO getPageByKey(String pageKey){
+        return getPageByKey(pageKey, null, null, null);
+    }
+    public ConferencePageDTO getPageByKey(String pageKey, String anchorId, Integer blockStart, Integer blockEnd) {
         ConferencePage page = conferencePageRepository.findByPageKey(pageKey)
                 .orElseThrow(() -> new EntityNotFoundException("Conference page not found"));
 
-        return ConferencePageDTO.fromEntity(page);
+        ConferencePageDTO dto = ConferencePageDTO.fromEntity(page);
+
+        dto.setHtmlContent(
+                markdownRenderService.renderWithSearchAnchor(
+                        page.getContent(),
+                        anchorId,
+                        blockStart,
+                        blockEnd
+                )
+        );
+
+        return dto;
     }
 
     @Transactional
@@ -39,6 +54,7 @@ public class ConferencePageService {
 
         ConferencePage saved = conferencePageRepository.save(page);
 
+        articleEmbeddingService.syncConferencePageEmbeddings(saved.getPageKey());
 
         return ConferencePageDTO.fromEntity(saved);
     }

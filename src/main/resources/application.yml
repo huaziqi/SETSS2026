@@ -3,6 +3,11 @@ chat:
     key: sk-e242353de1ef4c44b1d6fa3dd7001327
 
 spring:
+  zhipu:
+    api:
+      key: 6fd17261de4445a08c027080b5a5e4fa.h2ravR0gQzwqzHDu   # 你已经换好了，保持不动
+      base-url: https://open.bigmodel.cn/api/paas/v4
+  application: name:SETSS2026
   datasource:
     mysql:
       jdbc-url: jdbc:mysql://47.109.38.44:3306/setss2026?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
@@ -11,7 +16,7 @@ spring:
       driver-class-name: com.mysql.cj.jdbc.Driver
 
     postgres:
-      jdbc-url: jdbc:postgresql://192.168.56.1:5432/postgres
+      jdbc-url: jdbc:postgresql://10.69.221.227:5432/postgres
       username: postgres
       password: postgres
       driver-class-name: org.postgresql.Driver

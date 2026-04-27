@@ -15,6 +15,7 @@ import PostDetail from "../views/forum/PostDetail.vue";
 import About from "@/views/Info/About.vue";
 import Courses from "@/views/Info/Courses.vue";
 import Admin from "@/views/admin/Admin.vue";
+import ConferencePageEditor from "@/views/admin/ConferencePageEditor.vue";
 
 import Submit from "../views/manu/Submit2.vue";
 
@@ -63,6 +64,7 @@ const routes = [
     meta: { requiresAuth: true },
   },
   { path: "/admin", component: Admin },
+  { path: '/admin/conference/edit/:pageKey', component: ConferencePageEditor}
 ];
 
 const router = createRouter({

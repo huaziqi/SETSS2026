@@ -16,14 +16,54 @@ const formatTime = (time?: string) => {
   if (!time) return '-'
   return new Date(time).toLocaleString()
 }
-
 onMounted(async () => {
   if (Number.isNaN(postId.value)) {
     router.push('/forum')
     return
   }
 
-  await fetchData(`/api/posts/${postId.value}`)
+  const anchorId = route.query.anchorId
+  const blockStart = route.query.blockStart
+  const blockEnd = route.query.blockEnd
+
+  let url = `/api/posts/${postId.value}`
+
+  const params = new URLSearchParams()
+
+  if (typeof anchorId === 'string') {
+    params.append('anchorId', anchorId)
+  }
+
+  if (typeof blockStart === 'string') {
+    params.append('blockStart', blockStart)
+  }
+
+  if (typeof blockEnd === 'string') {
+    params.append('blockEnd', blockEnd)
+  }
+
+  if (params.toString()) {
+    url += `?${params.toString()}`
+  }
+
+  await fetchData(url)
+
+  if (typeof anchorId !== 'string') {
+    return
+  }
+
+  setTimeout(() => {
+    const target = document.getElementById(anchorId)
+
+    if (target) {
+      target.classList.add('active-highlight')
+
+      target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      })
+    }
+  }, 150)
 })
 </script>
 
@@ -50,7 +90,7 @@ onMounted(async () => {
           <span v-if="post.tag">#{{ post.tag }}</span>
         </div>
 
-        <div class="content">{{ post.content }}</div>
+        <div class="content html-content" v-html="post.htmlContent"></div>
 
         <CommentSection :post-id="postId" />
       </article>
@@ -113,5 +153,54 @@ onMounted(async () => {
 
 .error {
   color: #dc2626;
+}
+
+.html-content {
+  line-height: 1.8;
+  color: #1f2937;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 16px;
+}
+
+.html-content :deep(.md-block) {
+  scroll-margin-top: 96px;
+  padding: 2px 0;
+}
+
+.html-content :deep(.matched-chunk) {
+  background: #fff7cc;
+  border-left: 4px solid #111;
+  padding: 8px 12px;
+  margin: 8px 0;
+}
+
+.html-content :deep(h1),
+.html-content :deep(h2),
+.html-content :deep(h3) {
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+}
+
+.html-content :deep(p) {
+  margin: 0.6em 0;
+}
+
+.html-content :deep(pre) {
+  background: #f6f6f6;
+  padding: 12px;
+  overflow-x: auto;
+}
+
+.html-content :deep(code) {
+  background: #f3f4f6;
+  padding: 2px 4px;
+}
+
+.html-content :deep(.matched-chunk),
+.html-content :deep(.active-highlight) {
+  background: #fff7cc;
+  border-left: 4px solid #111;
+  padding: 8px 12px;
+  margin: 8px 0;
 }
 </style>

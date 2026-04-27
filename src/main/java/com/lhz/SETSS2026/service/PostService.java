@@ -17,12 +17,16 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final ArticleEmbeddingService articleEmbeddingService;
+    private final MarkdownRenderService markdownRenderService;
 
     public PostService(PostRepository postRepository,
-                       UserRepository userRepository, ArticleEmbeddingService articleEmbeddingService) {
+                       UserRepository userRepository,
+                       ArticleEmbeddingService articleEmbeddingService,
+                       MarkdownRenderService markdownRenderService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.articleEmbeddingService = articleEmbeddingService;
+        this.markdownRenderService = markdownRenderService;
     }
 
     @Transactional
@@ -106,12 +110,27 @@ public class PostService {
 
     @Transactional
     public PostDTO getPostDetail(Long postId) {
+        return getPostDetail(postId, null, null, null);
+    }
+    @Transactional
+    public PostDTO getPostDetail(Long postId, String anchorId, Integer blockStart, Integer blockEnd) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found"));
 
         post.setViewCount(post.getViewCount() + 1);
 
-        return PostDTO.fromEntity(post);
+        PostDTO dto = PostDTO.fromEntity(post);
+
+        String html = markdownRenderService.renderWithSearchAnchor(
+                post.getContent(),
+                anchorId,
+                blockStart,
+                blockEnd
+        );
+
+        dto.setHtmlContent(html);
+
+        return dto;
     }
 
     public PostDTO getPostDetailForOwner(Long postId, Integer userId) {

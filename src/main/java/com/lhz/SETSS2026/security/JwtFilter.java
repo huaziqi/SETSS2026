@@ -33,6 +33,10 @@ public class JwtFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if(path.startsWith("/api/ai/")){
+            return true;
+        }
+
         if ("GET".equalsIgnoreCase(method) && path.equals("/api/posts")) {
             return true;
         }
@@ -54,7 +58,8 @@ public class JwtFilter extends OncePerRequestFilter {
     private static final List<String> WHITE_LIST = Arrays.asList(
             "/api/auth/register",
             "/api/auth/login",
-            "/api/auth/validate"
+            "/api/auth/validate",
+            "/api/semantic/search"
     );
 
     private boolean isStaticResource(String path) {
