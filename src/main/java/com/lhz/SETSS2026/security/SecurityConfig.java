@@ -51,8 +51,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
                         // 公开查看帖子详情
                         .requestMatchers(HttpMethod.GET, "/api/posts/{postId}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/pages/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/pages/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/admin/pages/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/admin/pages/**").authenticated()
                         // 我的帖子、发帖、修改、删除都需要登录
                         .requestMatchers("/api/posts/my/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/posts").authenticated()
@@ -60,6 +60,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/posts/**").authenticated()
                         .requestMatchers("/api/users").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/chair/**").hasAnyRole("ADMIN", "CHAIR")
+                        .requestMatchers("/api/manuscript/assign").hasAnyRole("ADMIN", "CHAIR")
                         .anyRequest().authenticated()
 
                 ) // 请求路径的访问控制配置

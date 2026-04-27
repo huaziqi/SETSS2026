@@ -16,6 +16,16 @@ interface UserItem {
   role?: Role | null
 }
 
+interface RawUser {
+  id: number
+  name: string
+  email?: string
+  phone?: string
+  enable: boolean
+  roleId?: number
+  roleName?: string
+}
+
 const emit = defineEmits<{
   (e: 'notify', payload: { type: 'success' | 'error'; text: string }): void
 }>()
@@ -63,7 +73,21 @@ const filteredUsers = computed(() =>
 const loadUsers = async () => {
   await fetchData('/api/admin/user/list')
 
-  users.value = data.value?.data || data.value || []
+  const rawUsers: RawUser[] = data.value?.data || []
+
+users.value = rawUsers.map((rawUser): UserItem => ({
+  id: rawUser.id,
+  name: rawUser.name,
+  email: rawUser.email ?? undefined,
+  phone: rawUser.phone ?? undefined,
+  enable: rawUser.enable,
+  role: rawUser.roleId
+    ? {
+        id: rawUser.roleId,
+        name: rawUser.roleName ?? 'UNKNOWN'
+      }
+    : null
+}))
 
   selectedRoles.value = {}
 
@@ -71,6 +95,7 @@ const loadUsers = async () => {
     selectedRoles.value[user.id] = user.role?.id || ''
   })
 }
+
 
 const toggleUserStatus = async (user: UserItem) => {
   try {

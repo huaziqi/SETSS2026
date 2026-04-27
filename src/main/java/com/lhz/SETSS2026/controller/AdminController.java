@@ -17,23 +17,27 @@ public class AdminController {
 
     // ================= 用户管理 =================
 
+    //查询所有用户
     @GetMapping("/user/list")
     public Result listUsers() {
         return Result.success(adminService.listAllUsers());
     }
 
+    //禁用用户
     @PostMapping("/user/disable/{userId}")
     public Result disableUser(@PathVariable Integer userId) {
         adminService.disableUser(userId);
         return Result.success("禁用成功");
     }
 
+    //启用用户
     @PostMapping("/user/enable/{userId}")
     public Result enableUser(@PathVariable Integer userId) {
         adminService.enableUser(userId);
         return Result.success("启用成功");
     }
 
+    //分配角色
     @PostMapping("/user/assignRole")
     public Result assignRoleToUser(@RequestParam Integer userId,
                                    @RequestParam Integer roleId) {
@@ -43,11 +47,13 @@ public class AdminController {
 
     // ================= 帖子管理 =================
 
+    //查询所有帖子
     @GetMapping("/posts")
     public Result listPosts() {
         return Result.success(adminService.listAllPosts());
     }
 
+    // Pin/Unpin
     @PutMapping("/posts/{postId}/pin")
     public Result togglePin(@PathVariable Long postId,
                             @RequestParam Boolean isPinned) {
@@ -55,6 +61,7 @@ public class AdminController {
         return Result.success("Pin status updated");
     }
 
+    // 删除帖子
     @DeleteMapping("/posts/{postId}")
     public Result deletePost(@PathVariable Long postId) {
         adminService.deletePostByAdmin(postId);
@@ -63,11 +70,13 @@ public class AdminController {
 
     // ================= 评论管理 =================
 
+    // 查询所有评论
     @GetMapping("/comments")
     public Result listComments(@RequestParam(required = false) Long postId) {
         return Result.success(adminService.listComments(postId));
     }
 
+    // 删除评论
     @DeleteMapping("/comments/{commentId}")
     public Result deleteComment(@PathVariable Long commentId) {
         adminService.deleteCommentByAdmin(commentId);

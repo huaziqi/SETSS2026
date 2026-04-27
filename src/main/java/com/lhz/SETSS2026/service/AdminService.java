@@ -27,6 +27,14 @@ public class AdminService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
+    private static final List<String> PROTECTED_ROLES = List.of(
+        "ROLE_ADMIN",
+        "ROLE_CHAIR",
+        "ROLE_REVIEWER"
+    );
+
+    private static final String MANAGEABLE_ROLE = "ROLE_USER";
+
     //查询所有用户（管理员）
     public List<UserAdminDTO> listAllUsers() {
         return userRepository.findAll()
@@ -38,6 +46,11 @@ public class AdminService {
     //禁用用户
     public void disableUser(Integer userId){
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("用户不存在"));
+
+        if (!isUserManageable(user)) {
+            throw new RuntimeException("无法管理该角色的用户");
+        }
+
         user.setEnable(false);
         userRepository.save(user);
     }
@@ -45,16 +58,39 @@ public class AdminService {
     //启用用户
     public void enableUser(Integer userId){
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("用户不存在"));
+
+        if (!isUserManageable(user)) {
+            throw new RuntimeException("无法管理该角色的用户");
+        }
+
         user.setEnable(true);
         userRepository.save(user);
     }
 
     //给用户分配角色
     public void assignRoleToUser(Integer userId, Integer roleId){
-        User user = userRepository.findById(userId).orElseThrow();
-        Role role = roleRepository.findById(roleId).orElseThrow();
-        user.setRole(role);
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("用户不存在"));
+
+        if (!isUserManageable(user)) {
+            throw new RuntimeException("无法管理该角色的用户");
+        }
+
+        Role targetRole = roleRepository.findById(roleId).orElseThrow(() -> new RuntimeException("角色不存在"));
+
+        if (PROTECTED_ROLES.contains(targetRole.getName())) {
+            throw new RuntimeException("不允许分配此角色");
+        }
+
+        user.setRole(targetRole);
         userRepository.save(user);
+    }
+
+    private boolean isUserManageable(User user) {
+        if (user.getRole() == null) {
+            return false;
+        }
+        String roleName = user.getRole().getName();
+        return roleName != null && roleName.equals(MANAGEABLE_ROLE);
     }
 
     public List<PostDTO> listAllPosts() {

@@ -1,10 +1,20 @@
+chat:
+  bailian:
+    key: sk-e242353de1ef4c44b1d6fa3dd7001327
+
 spring:
-  application: name:SETSS2026
   datasource:
-    url: jdbc:mysql://47.109.38.44:3306/setss2026?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
-    username: lhz
-    password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    mysql:
+      jdbc-url: jdbc:mysql://47.109.38.44:3306/setss2026?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
+      username: lhz
+      password: 123456
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+    postgres:
+      jdbc-url: jdbc:postgresql://192.168.56.1:5432/postgres
+      username: postgres
+      password: postgres
+      driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update # 自动更新表结构（开发环境）

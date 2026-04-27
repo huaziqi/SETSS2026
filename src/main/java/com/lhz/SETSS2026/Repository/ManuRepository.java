@@ -18,6 +18,8 @@ public interface ManuRepository extends JpaRepository<Manuscript, Integer> {
 
     List<Manuscript> findByReviewer(String reviewer);
 
+    List<Manuscript> findByReviewerId(Integer reviewerId);
+
     List<Manuscript> findByUserId(Integer userId);
 
 

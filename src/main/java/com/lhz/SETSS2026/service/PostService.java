@@ -16,11 +16,13 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final ArticleEmbeddingService articleEmbeddingService;
 
     public PostService(PostRepository postRepository,
-                       UserRepository userRepository) {
+                       UserRepository userRepository, ArticleEmbeddingService articleEmbeddingService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.articleEmbeddingService = articleEmbeddingService;
     }
 
     @Transactional
@@ -40,11 +42,16 @@ public class PostService {
 
         Post savedPost = postRepository.save(post);
 
+        if ("PUBLISHED".equalsIgnoreCase(savedPost.getStatus())) {
+            articleEmbeddingService.syncPostEmbeddings(savedPost.getPostId());
+        }
+
         return PostDTO.fromEntity(savedPost);
     }
 
     @Transactional
     public PostDTO updatePost(Long postId, Integer userId, PostDTO dto) {
+        System.out.println("sync embeddings----------------");
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found"));
 
@@ -53,8 +60,18 @@ public class PostService {
         }
 
         dto.updateEntity(post);
-
         Post savedPost = postRepository.save(post);
+
+        if("PUBLISHED".equalsIgnoreCase(savedPost.getStatus())){
+            System.out.println("sync embeddings");
+            articleEmbeddingService.deleteEmbeddings("POST", post.getPostId());
+            articleEmbeddingService.syncPostEmbeddings(post.getPostId());
+        }
+
+        if("DRAFT".equalsIgnoreCase(savedPost.getStatus())){
+            articleEmbeddingService.deleteEmbeddings("POST", post.getPostId());
+        }
+
 
         return PostDTO.fromEntity(savedPost);
     }
@@ -67,6 +84,8 @@ public class PostService {
         if (!post.getUser().getId().equals(userId)) {
             throw new RuntimeException("No permission to delete this post");
         }
+
+        articleEmbeddingService.deleteEmbeddings("POST", post.getPostId());
 
         postRepository.delete(post);
     }

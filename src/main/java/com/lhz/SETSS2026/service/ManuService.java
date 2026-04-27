@@ -3,6 +3,7 @@ package com.LHZ.SETSS2026.service;
 import com.LHZ.SETSS2026.dto.Manuscripts.ManuscriptSimpleDTO;
 import com.LHZ.SETSS2026.entity.Manuscript;
 import com.LHZ.SETSS2026.repository.ManuRepository;
+import com.LHZ.SETSS2026.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ManuService {
     private final ManuRepository manuRepository;
+    private final UserRepository userRepository;
 
     @Value("${file.upload-dir:uploads/manuscripts}")
     private String uploadDir;
@@ -171,7 +173,7 @@ public class ManuService {
         existingManuscript.setIntroduction(manuscript.getIntroduction());
         existingManuscript.setAuthor(manuscript.getAuthor());
         existingManuscript.setStatus(manuscript.getStatus());
-        existingManuscript.setReviewer(manuscript.getReviewer());
+        existingManuscript.setReviewerId(manuscript.getReviewerId());
         existingManuscript.setReviewResult(manuscript.getReviewResult());
         existingManuscript.setUpdateTime(LocalDateTime.now());
 
@@ -285,24 +287,6 @@ public class ManuService {
         return manuRepository.save(existingManuscript);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     //分配稿件
     @Transactional
     public Manuscript assignManuscript(Integer manuscriptId, Integer reviewerId) {
@@ -314,7 +298,7 @@ public class ManuService {
         }
 
         manuscript.setStatus("已分配");
-        manuscript.setReviewer(String.valueOf(reviewerId));
+        manuscript.setReviewerId(reviewerId);
         manuscript.setUpdateTime(LocalDateTime.now());
 
         return manuRepository.save(manuscript);
