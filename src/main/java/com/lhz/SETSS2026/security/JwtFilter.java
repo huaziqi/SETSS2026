@@ -33,6 +33,10 @@ public class JwtFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if(path.startsWith("/api/ai/")){
+            return true;
+        }
+
         if ("GET".equalsIgnoreCase(method) && path.equals("/api/posts")) {
             return true;
         }

@@ -42,6 +42,7 @@ public class SecurityConfig {
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/validate",
+                                "/api/ai/**",
                                 "/chat/**",
                                 "/avatars/**"
                         ).permitAll()
