@@ -90,11 +90,11 @@ public class UserService {
         return new AuthResponse(token, user.getId());
     }
 
-    public UserInfoResponse getUserInfoByToken(String token){ //根据token判断
+    public UserInfoResponse getUserInfoByToken(String token) { //根据token判断
         UserInfoResponse userInfo = new UserInfoResponse();
         System.out.println(token);
         System.out.println(jwtUtil.validateToken(token));
-        if(! jwtUtil.validateToken(token)){
+        if (!jwtUtil.validateToken(token)) {
             userInfo.setError("invalid token");
             return userInfo;
         }
@@ -130,6 +130,19 @@ public class UserService {
     }
 
     public List<UserSimpleDTO> getUsersByRole(String roleName) {
+        List<User> users = userRepository.findByRoleName(roleName);
 
+        return users.stream()
+                .map(user -> {
+                    UserSimpleDTO dto = new UserSimpleDTO();
+                    dto.setId(user.getId());
+                    dto.setName(user.getName());
+                    dto.setEmail(user.getEmail());
+                    dto.setPhone(user.getPhone());
+                    dto.setRole(user.getRole() != null ? user.getRole().getName() : null);
+                    return dto;
+                })
+                .collect(java.util.stream.Collectors.toList());
     }
+
 }
