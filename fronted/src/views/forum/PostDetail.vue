@@ -48,22 +48,6 @@ onMounted(async () => {
 
   await fetchData(url)
 
-  if (typeof anchorId !== 'string') {
-    return
-  }
-
-  setTimeout(() => {
-    const target = document.getElementById(anchorId)
-
-    if (target) {
-      target.classList.add('active-highlight')
-
-      target.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      })
-    }
-  }, 150)
 })
 </script>
 
@@ -167,12 +151,6 @@ onMounted(async () => {
   padding: 2px 0;
 }
 
-.html-content :deep(.matched-chunk) {
-  background: #fff7cc;
-  border-left: 4px solid #111;
-  padding: 8px 12px;
-  margin: 8px 0;
-}
 
 .html-content :deep(h1),
 .html-content :deep(h2),
@@ -196,11 +174,4 @@ onMounted(async () => {
   padding: 2px 4px;
 }
 
-.html-content :deep(.matched-chunk),
-.html-content :deep(.active-highlight) {
-  background: #fff7cc;
-  border-left: 4px solid #111;
-  padding: 8px 12px;
-  margin: 8px 0;
-}
 </style>

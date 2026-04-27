@@ -103,7 +103,7 @@ public class PostController {
             @RequestParam(required = false) Integer blockStart,
             @RequestParam(required = false) Integer blockEnd
     ) {
-        return postService.getPostDetail(postId, anchorId, blockStart, blockEnd);
+        return postService.getPostDetail(postId);
     }
 
 }

@@ -104,7 +104,7 @@ public class AdminController {
             @RequestParam(required = false) Integer blockStart,
             @RequestParam(required = false) Integer blockEnd
     ) {
-        return conferencePageService.getPageByKey(pageKey, anchorId, blockStart, blockEnd);
+        return conferencePageService.getPageByKey(pageKey);
     }
 
     // 更新页面内容（核心接口）

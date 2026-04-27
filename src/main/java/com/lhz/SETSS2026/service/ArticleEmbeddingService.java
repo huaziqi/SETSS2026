@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -52,10 +51,20 @@ public class ArticleEmbeddingService {
         }
     }
 
+    @Transactional
+    public void syncAllConferencePageEmbeddings() {
+        List<ConferencePage> pages = conferencePageRepository.findAll();
 
-    /**
-     * 根据 postId 同步单篇帖子
-     */
+        for (ConferencePage page : pages) {
+            if (!"PUBLISHED".equalsIgnoreCase(page.getStatus())) {
+                deleteEmbeddings("CONFERENCE_PAGE", page.getPageId());
+                continue;
+            }
+
+            syncConferencePageEmbeddings(page);
+        }
+    }
+
     @Transactional
     public void syncPostEmbeddings(Long postId) {
         Post post = postRepository.findById(postId)
@@ -64,9 +73,6 @@ public class ArticleEmbeddingService {
         syncPostEmbeddings(post);
     }
 
-    /**
-     * 根据 pageKey 同步单个会议信息页面
-     */
     @Transactional
     public void syncConferencePageEmbeddings(String pageKey) {
         ConferencePage page = conferencePageRepository.findByPageKey(pageKey)
@@ -75,21 +81,17 @@ public class ArticleEmbeddingService {
         syncConferencePageEmbeddings(page);
     }
 
-    /**
-     * 删除某个来源的全部向量记录
-     */
     @Transactional
     public void deleteEmbeddings(String sourceType, Long sourceId) {
-        pgJdbcTemplate.update(
+        int rows = pgJdbcTemplate.update(
                 "DELETE FROM semantic_chunks WHERE source_type = ? AND source_id = ?",
                 sourceType,
                 sourceId
         );
+
+        System.out.println("Deleted embeddings: " + sourceType + " " + sourceId + ", rows=" + rows);
     }
 
-    /**
-     * 同步帖子 embedding
-     */
     private void syncPostEmbeddings(Post post) {
         String markdown = buildSearchMarkdown(post.getTitle(), post.getContent());
 
@@ -103,9 +105,6 @@ public class ArticleEmbeddingService {
         );
     }
 
-    /**
-     * 同步会议信息页面 embedding
-     */
     private void syncConferencePageEmbeddings(ConferencePage page) {
         String markdown = buildSearchMarkdown(page.getTitle(), page.getContent());
 
@@ -119,10 +118,6 @@ public class ArticleEmbeddingService {
         );
     }
 
-    /**
-     * 核心同步逻辑：
-     * Markdown -> TextChunk -> Embedding -> pgvector
-     */
     private void syncMarkdownEmbeddings(
             String sourceType,
             Long sourceId,
@@ -153,7 +148,6 @@ public class ArticleEmbeddingService {
             String vectorLiteral = toVectorLiteral(embedding);
             String anchorId = buildAnchorId(sourceType, sourceId, chunk.getIndex());
 
-
             pgJdbcTemplate.update(
                     """
                     INSERT INTO semantic_chunks
@@ -173,6 +167,18 @@ public class ArticleEmbeddingService {
                         embedding
                     )
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::vector)
+                    ON CONFLICT (source_type, source_id, chunk_index)
+                    DO UPDATE SET
+                        page_key = EXCLUDED.page_key,
+                        title = EXCLUDED.title,
+                        url = EXCLUDED.url,
+                        anchor_id = EXCLUDED.anchor_id,
+                        char_start = EXCLUDED.char_start,
+                        char_end = EXCLUDED.char_end,
+                        block_start = EXCLUDED.block_start,
+                        block_end = EXCLUDED.block_end,
+                        content = EXCLUDED.content,
+                        embedding = EXCLUDED.embedding
                     """,
                     sourceType,
                     sourceId,
@@ -212,7 +218,6 @@ public class ArticleEmbeddingService {
     }
 
     public List<Double> fetchEmbedding(String text) {
-
         Map<String, Object> requestBody = Map.of(
                 "model", "qwen3-vl-embedding",
                 "input", Map.of(

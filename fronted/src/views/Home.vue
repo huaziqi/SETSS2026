@@ -1,22 +1,16 @@
 <script setup lang="ts">
 import Header from '@/layouts/Header.vue'
 import { computed, onMounted } from 'vue'
-import { marked } from 'marked'
-import { useRouter } from 'vue-router'
 import { useApi } from '@/utils/useApi'
 
-const router = useRouter()
 const { data, fetchData, loading, error } = useApi()
 
 const page = computed(() => data.value?.data || data.value || null)
 
+// ✅ 使用后端已经渲染好的 HTML
 const htmlContent = computed(() => {
-  return page.value?.content ? marked.parse(page.value.content) : ''
+  return page.value?.htmlContent || ''
 })
-
-const goPage = (path: string) => {
-  router.push(path)
-}
 
 onMounted(() => {
   fetchData('/api/admin/pages/home')
@@ -28,12 +22,6 @@ onMounted(() => {
     <Header />
 
     <main class="home">
-      <!-- 标题 -->
-      <section class="hero">
-        <h1>{{ page?.title || 'SETSS 2026' }}</h1>
-      </section>
-
-      <!-- Markdown 内容 -->
       <section class="content">
         <p v-if="loading">Loading...</p>
         <p v-else-if="error" class="error">Failed to load</p>
@@ -43,13 +31,6 @@ onMounted(() => {
           class="markdown-body"
           v-html="htmlContent"
         ></div>
-      </section>
-
-      <!-- 快捷入口 -->
-      <section class="quick-links">
-        <button @click="goPage('/schedule')">Schedule</button>
-        <button class="outline" @click="goPage('/courses')">Courses</button>
-        <button class="outline" @click="goPage('/about')">About</button>
       </section>
     </main>
   </div>
@@ -66,45 +47,43 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-.hero {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.hero h1 {
-  font-size: 48px;
-  margin: 0;
-}
-
 .content {
   border: 1px solid #e5e5e5;
   padding: 24px;
   background: #fff;
 }
 
+/* Markdown 渲染样式 */
 .markdown-body {
   line-height: 1.8;
   font-size: 16px;
 }
 
-.quick-links {
-  margin-top: 30px;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
+/* 保留结构块样式（如果你后端有 md-block） */
+.markdown-body :deep(.md-block) {
+  margin-bottom: 8px;
 }
 
-button {
-  border: 1px solid #111;
-  background: #111;
-  color: #fff;
-  padding: 10px 18px;
-  cursor: pointer;
+.markdown-body :deep(h1),
+.markdown-body :deep(h2),
+.markdown-body :deep(h3) {
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
 }
 
-button.outline {
-  background: #fff;
-  color: #111;
+.markdown-body :deep(p) {
+  margin: 0.6em 0;
+}
+
+.markdown-body :deep(pre) {
+  background: #f6f6f6;
+  padding: 12px;
+  overflow-x: auto;
+}
+
+.markdown-body :deep(code) {
+  background: #f3f4f6;
+  padding: 2px 4px;
 }
 
 .error {
