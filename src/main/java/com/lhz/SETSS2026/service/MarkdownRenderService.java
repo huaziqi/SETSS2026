@@ -5,6 +5,9 @@ import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class MarkdownRenderService {
 
@@ -51,27 +54,42 @@ public class MarkdownRenderService {
         }
 
         Node doc = parser.parse(markdown);
-        StringBuilder html = new StringBuilder();
-
-        int blockIndex = 0;
-
+        List<Node> blocks = new ArrayList<>();
         for (Node block = doc.getFirstChild(); block != null; block = block.getNext()) {
+            blocks.add(block);
+        }
+
+        boolean hasRange = anchorId != null && blockStart != null && blockEnd != null;
+        boolean useBlockIndexRange = hasRange
+                && blockStart >= 0
+                && blockEnd >= 0
+                && blockStart < blocks.size()
+                && blockEnd < blocks.size();
+
+        StringBuilder html = new StringBuilder();
+        boolean anchorInjected = false;
+
+        for (int blockIndex = 0; blockIndex < blocks.size(); blockIndex++) {
+            Node block = blocks.get(blockIndex);
             int start = block.getStartOffset();
             int end = block.getEndOffset();
 
             String blockHtml = renderer.render(block);
 
-            boolean inMatchedChunk =
-                    anchorId != null &&
-                            blockStart != null &&
-                            blockEnd != null &&
-                            blockIndex >= blockStart &&
-                            blockIndex <= blockEnd;
+            boolean inMatchedChunk = false;
+            if (hasRange) {
+                if (useBlockIndexRange) {
+                    inMatchedChunk = blockIndex >= blockStart && blockIndex <= blockEnd;
+                } else {
+                    inMatchedChunk = blockEnd > start && blockStart < end;
+                }
+            }
 
             html.append("<div");
 
-            if (inMatchedChunk && blockIndex == blockStart) {
+            if (inMatchedChunk && !anchorInjected) {
                 html.append(" id=\"").append(anchorId).append("\"");
+                anchorInjected = true;
             }
 
             html.append(" class=\"md-block")
@@ -83,9 +101,6 @@ public class MarkdownRenderService {
                     .append(">")
                     .append(blockHtml)
                     .append("</div>");
-
-            blockIndex++;
-
         }
 
         return html.toString();
