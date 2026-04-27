@@ -15,6 +15,10 @@ import PostDetail from "../views/forum/PostDetail.vue";
 
 import Submit from "../views/manu/Submit2.vue";
 
+// 报名相关
+import Participation from "../views/participation/participation.vue";
+import LectureModules from "../views/participation/lecture-modules.vue";
+
 const routes = [
   { path: "/", component: Home },
   { path: "/login", component: Login },
@@ -43,6 +47,16 @@ const routes = [
   { path: "/forum/post/:postId", component: PostDetail },
 
   { path: "/submit", component: Submit },
+  {
+    path: "/participation",
+    component: Participation,
+    meta: { requiresAuth: true }, // 如果需要登录才能报名，加上这个
+  },
+  {
+    path: "/participation/lecture-modules",
+    component: LectureModules,
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = createRouter({
