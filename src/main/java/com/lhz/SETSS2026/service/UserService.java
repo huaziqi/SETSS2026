@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -97,7 +98,12 @@ public class UserService {
             return userInfo;
         }
         userInfo.setUserName(jwtUtil.extractUserName(token));
-        User user = userRepository.findByName(userInfo.getUserName()).getFirst();
+        List<User> users = userRepository.findByName(userInfo.getUserName());
+        if (users.isEmpty()) {
+            userInfo.setError("user not found");
+            return userInfo;
+        }
+        User user = users.getFirst();
         userInfo.setEmail(user.getEmail());
         userInfo.setPhone(user.getPhone());
         userInfo.setEnable(user.getEnable());

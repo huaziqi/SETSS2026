@@ -32,6 +32,7 @@ const goTag = (tag: string) => {
 const clearTag = () => {
   router.push('/forum')
 }
+
 </script>
 
 <template>

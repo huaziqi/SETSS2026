@@ -118,11 +118,6 @@ public class ManuController {
 
 
 
-
-
-
-
-
     //分配稿件
     @PostMapping("/assign")
     public Result assignManuscript(@RequestBody AssignManuscriptRequest request) {

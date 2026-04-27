@@ -16,6 +16,7 @@ import About from "@/views/Info/About.vue";
 import Courses from "@/views/Info/Courses.vue";
 import Admin from "@/views/admin/Admin.vue";
 
+
 import Submit from "../views/manu/Submit2.vue";
 
 const routes = [
