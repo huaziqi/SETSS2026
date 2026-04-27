@@ -4,6 +4,7 @@ import com.LHZ.SETSS2026.dto.UserAdminDTO;
 import com.LHZ.SETSS2026.entity.Manuscript;
 import com.LHZ.SETSS2026.entity.Role;
 import com.LHZ.SETSS2026.entity.User;
+import com.LHZ.SETSS2026.enums.ManuscriptStatus;
 import com.LHZ.SETSS2026.repository.ManuRepository;
 import com.LHZ.SETSS2026.repository.RoleRepository;
 import com.LHZ.SETSS2026.repository.UserRepository;
@@ -78,7 +79,7 @@ public class ChairService {
             throw new RuntimeException("指定的用户不是审稿员");
         }
 
-        manuscript.setStatus("已分配");
+        manuscript.setStatus(ManuscriptStatus.AwaitingReviewing);
         manuscript.setReviewerId(reviewerId);
         manuscript.setReviewer(reviewer.getName());
         manuscript.setUpdateTime(LocalDateTime.now());
@@ -86,18 +87,20 @@ public class ChairService {
         return manuRepository.save(manuscript);
     }
 
-    // 查询所有待审核的稿件
-    public List<Manuscript> getPendingManuscripts() {
-        return manuRepository.findByStatus("待审核");
-    }
 
-    // 查询所有已分配的稿件
-    public List<Manuscript> getAssignedManuscripts() {
-        return manuRepository.findByStatus("已分配");
-    }
+
+
 
     // 查询某审稿员的所有稿件
     public List<Manuscript> getManuscriptsByReviewerId(Integer reviewerId) {
         return manuRepository.findByReviewerId(reviewerId);
+    }
+
+    public List<Manuscript> getPendingManuscripts() {
+        return manuRepository.findByStatus(ManuscriptStatus.AwaitingReviewing);
+    }
+
+    public List<Manuscript> getAssignedManuscripts() {
+        return manuRepository.findByStatus(ManuscriptStatus.AwaitingReviewing);
     }
 }

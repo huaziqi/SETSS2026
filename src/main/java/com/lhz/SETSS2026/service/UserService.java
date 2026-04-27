@@ -1,5 +1,6 @@
 package com.LHZ.SETSS2026.service;
 
+import com.LHZ.SETSS2026.dto.Assign.UserSimpleDTO;
 import com.LHZ.SETSS2026.dto.RegisterRequest;
 import com.LHZ.SETSS2026.dto.UserInfoResponse;
 import com.LHZ.SETSS2026.repository.RoleRepository;
@@ -128,4 +129,7 @@ public class UserService {
         return stringRedisTemplate.hasKey(onlineKey);
     }
 
+    public List<UserSimpleDTO> getUsersByRole(String roleName) {
+
+    }
 }

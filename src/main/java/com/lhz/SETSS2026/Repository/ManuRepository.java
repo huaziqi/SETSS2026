@@ -1,6 +1,7 @@
 package com.LHZ.SETSS2026.repository;
 
 import com.LHZ.SETSS2026.entity.Manuscript;
+import com.LHZ.SETSS2026.enums.ManuscriptStatus;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,7 @@ public interface ManuRepository extends JpaRepository<Manuscript, Integer> {
 
     List<Manuscript> findByAuthor(String author);
 
-    List<Manuscript> findByStatus(String status);
+    List<Manuscript> findByStatus(ManuscriptStatus status);
 
     List<Manuscript> findByReviewer(String reviewer);
 

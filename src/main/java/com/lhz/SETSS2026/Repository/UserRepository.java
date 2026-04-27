@@ -1,5 +1,6 @@
 package com.LHZ.SETSS2026.repository;
 
+import com.LHZ.SETSS2026.dto.Assign.UserSimpleDTO;
 import com.LHZ.SETSS2026.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +22,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByPhone(String phone);
 
     Optional<User> findByEmail(String email);
+
+
 }
 
 

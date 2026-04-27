@@ -32,14 +32,7 @@ public class ReviewService {
         record.setReviewResult(reviewResult);
         record.setReviewComment(reviewComment);
 
-        // 更新稿件状态和审稿结果
-        if ("通过".equals(reviewResult)) {
-            manuscript.setStatus("通过");
-        } else if ("驳回".equals(reviewResult)) {
-            manuscript.setStatus("驳回");
-        } else {
-            manuscript.setStatus("评审中");
-        }
+
         manuscript.setReviewerId(reviewerId);
         manuscript.setReviewResult(reviewResult);
         manuscript.setUpdateTime(LocalDateTime.now());

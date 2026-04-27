@@ -1,10 +1,13 @@
 package com.LHZ.SETSS2026.controller;
 
 import com.LHZ.SETSS2026.common.result.Result;
+import com.LHZ.SETSS2026.dto.Assign.UserSimpleDTO;
 import com.LHZ.SETSS2026.dto.Manuscripts.ManuscriptSimpleDTO;
 import com.LHZ.SETSS2026.dto.review.AssignManuscriptRequest;
 import com.LHZ.SETSS2026.entity.Manuscript;
+import com.LHZ.SETSS2026.enums.ManuscriptStatus;
 import com.LHZ.SETSS2026.service.ManuService;
+import com.LHZ.SETSS2026.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ManuController {
     private final ManuService manuService;
+    private final UserService userService;
 
     //提交新稿件
     @PostMapping("/submit")
@@ -78,6 +82,7 @@ public class ManuController {
 
 
     @GetMapping("/update/download/{manuId}")
+
     public void downloadManuscriptFile(@PathVariable Integer manuId, HttpServletResponse response) {
         try {
             manuService.downloadManuscriptFile(manuId, response);
@@ -117,6 +122,101 @@ public class ManuController {
     }
 
 
+    @GetMapping("/admin/check")
+    public Result getManuscriptsForChecking() {
+        try {
+            List<ManuscriptSimpleDTO> list = manuService.getManuscriptsByStatus("AwaitingChecking");
+            return Result.success(list);
+        } catch (Exception e) {
+            return Result.error("查询失败：" + e.getMessage());
+        }
+    }
+
+    @GetMapping("/admin/check-single/{manuId}")
+    public Result getManuscriptForChecking(@PathVariable Integer manuId) {
+        try {
+            ManuscriptSimpleDTO dto = manuService.getManuscriptForChecking(manuId);
+            return Result.success(dto);
+        } catch (Exception e) {
+            return Result.error("获取稿件信息失败：" + e.getMessage());
+        }
+    }
+
+    //管理员审核时下载稿件源文件
+    @GetMapping("/admin/check-download/{manuId}")
+    public void downloadManuscriptForCheck(@PathVariable Integer manuId, HttpServletResponse response) {
+        try {
+            manuService.downloadManuscriptFile(manuId, response);
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            try {
+                response.getWriter().write("下载失败：" + e.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    @PostMapping("/admin/approve/{manuId}")
+    public Result approveManuscript(@PathVariable Integer manuId) {
+        try {
+            manuService.updateManuscriptStatus(manuId, ManuscriptStatus.AwaitingAssigning);
+            return Result.success("稿件审核通过");
+        } catch (Exception e) {
+            return Result.error("稿件审核失败：" + e.getMessage());
+        }
+    }
+
+
+    @PostMapping("/admin/reject/{manuId}")
+    public Result rejectManuscript(@PathVariable Integer manuId, @RequestParam String reason) {
+        try {
+            if (reason == null || reason.trim().isEmpty()) {
+                return Result.error("拒绝原因不能为空");
+            }
+
+            Manuscript manuscript = manuService.rejectManuscriptWithReason(manuId, reason.trim());
+            ManuscriptSimpleDTO dto = manuService.getManuscriptForUpdate(manuId);
+            return Result.success("稿件审核未通过", dto);
+        } catch (Exception e) {
+            return Result.error("稿件审核失败：" + e.getMessage());
+        }
+    }
+
+    @GetMapping("/chair/assign/manu")
+    public Result assignManuscript() {
+        try {
+            List<ManuscriptSimpleDTO> list = manuService.getManuscriptsByStatus("AwaitingAssigning");
+            return Result.success(list);
+        } catch (Exception e) {
+            return Result.error("查询失败：" + e.getMessage());
+        }
+    }
+
+    @GetMapping("/chair/assign/reviewer")
+    public Result assignReviewer() {
+        try {
+            List<UserSimpleDTO> list = userService.getUsersByRole("ROLE_REVIEWER");
+            return Result.success(list);
+        } catch (Exception e) {
+            return Result.error("查询失败：" + e.getMessage());
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //分配稿件
     @PostMapping("/assign")
@@ -147,7 +247,7 @@ public class ManuController {
         @GetMapping("/status/{status}")
         public Result getManuscriptsByStatus(@PathVariable String status) {
             try {
-                List<Manuscript> list = manuService.getManuscriptsByStatus(status);
+                List<ManuscriptSimpleDTO> list = manuService.getManuscriptsByStatus(status);
                 return Result.success(list);
             } catch (Exception e) {
                 return Result.error("查询失败：" + e.getMessage());

@@ -2,6 +2,8 @@ package com.LHZ.SETSS2026.service;
 
 import com.LHZ.SETSS2026.dto.Manuscripts.ManuscriptSimpleDTO;
 import com.LHZ.SETSS2026.entity.Manuscript;
+import com.LHZ.SETSS2026.enums.ManuscriptGrade;
+import com.LHZ.SETSS2026.enums.ManuscriptStatus;
 import com.LHZ.SETSS2026.repository.ManuRepository;
 import com.LHZ.SETSS2026.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -49,7 +51,7 @@ public class ManuService {
 
         String savedFilePath = saveFile(file, userId);
 
-        manuscript.setStatus("待审核");
+        manuscript.setStatus(ManuscriptStatus.AwaitingChecking);
         manuscript.setPublishTime(LocalDateTime.now());
         manuscript.setUpdateTime(LocalDateTime.now());
         manuscript.setOriginalFileName(file.getOriginalFilename());
@@ -110,27 +112,6 @@ public class ManuService {
     }
 
 
-    // 保存文件并返回相对路径
-    private String saveFile(MultipartFile file) throws IOException {
-        // 创建上传目录
-        Path uploadPath = Paths.get(uploadDir);
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
-
-        // 生成唯一文件名避免冲突
-        String originalFilename = file.getOriginalFilename();
-        String extension = getFileExtension(originalFilename);
-        String uniqueFilename = UUID.randomUUID().toString() + "." + extension;
-
-        // 保存文件
-        Path filePath = uploadPath.resolve(uniqueFilename);
-        Files.copy(file.getInputStream(), filePath);
-
-        // 返回相对路径（便于访问）
-        return uploadDir + "/" + uniqueFilename;
-    }
-
     // 获取文件扩展名
     private String getFileExtension(String filename) {
         if (filename == null || !filename.contains(".")) {
@@ -149,10 +130,6 @@ public class ManuService {
         return manuRepository.findById(manuscriptId);
     }
 
-    //根据状态查询稿件
-    public List<Manuscript> getManuscriptsByStatus(String status){
-        return manuRepository.findByStatus(status);
-    }
 
     //根据审稿人查询稿件
     public List<Manuscript> getManuscriptsByReviewer(String reviewer){
@@ -216,7 +193,7 @@ public class ManuService {
         dto.setOriginalFileName(manuscript.getOriginalFileName());
         dto.setPublishTime(manuscript.getPublishTime());
         dto.setUpdateTime(manuscript.getUpdateTime());
-        dto.setStatus(manuscript.getStatus());
+        dto.setStatus(manuscript.getStatus() != null ? manuscript.getStatus().getDescription() : null);
         return dto;
     }
 
@@ -287,21 +264,98 @@ public class ManuService {
         return manuRepository.save(existingManuscript);
     }
 
+
+    //根据状态查询稿件
+    public List<ManuscriptSimpleDTO> getManuscriptsByStatus(String status){
+        ManuscriptStatus manuscriptStatus = ManuscriptStatus.valueOf(status);
+        return manuRepository.findByStatus(manuscriptStatus).stream()
+                .map(this::convertToSimpleDTO)
+                .collect(Collectors.toList());
+    }
+
+
+    @Transactional
+    public Manuscript updateManuscriptStatus(Integer manuscriptId, ManuscriptStatus newStatus) {
+        Manuscript manuscript = manuRepository.findById(manuscriptId)
+                .orElseThrow(() -> new RuntimeException("稿件不存在"));
+
+        manuscript.setStatus(newStatus);
+        manuscript.setUpdateTime(LocalDateTime.now());
+
+        return manuRepository.save(manuscript);
+    }
+
+    @Transactional
+    public Manuscript rejectManuscriptWithReason(Integer manuscriptId, String rejectReason) {
+        Manuscript manuscript = manuRepository.findById(manuscriptId)
+                .orElseThrow(() -> new RuntimeException("稿件不存在"));
+
+        manuscript.setStatus(ManuscriptStatus.NonCompliant);
+        manuscript.setReviewResult(rejectReason);
+        manuscript.setUpdateTime(LocalDateTime.now());
+
+        return manuRepository.save(manuscript);
+    }
+
+
+    public ManuscriptSimpleDTO getManuscriptForChecking(Integer manuId) {
+        Manuscript manuscript = manuRepository.findById(manuId)
+                .orElseThrow(() -> new RuntimeException("稿件不存在"));
+
+        return convertToSimpleDTO(manuscript);
+
+    }
+
+
     //分配稿件
     @Transactional
     public Manuscript assignManuscript(Integer manuscriptId, Integer reviewerId) {
         Manuscript manuscript = manuRepository.findById(manuscriptId)
                 .orElseThrow(() -> new RuntimeException("稿件不存在"));
 
-        if (!"待审核".equals(manuscript.getStatus())) {
-            throw new RuntimeException("只能分配状态为'待审核'的稿件");
+        if (manuscript.getStatus() != ManuscriptStatus.AwaitingAssigning) {
+            throw new RuntimeException("只能分配状态为'待分配'的稿件");
         }
 
-        manuscript.setStatus("已分配");
+        manuscript.setStatus(ManuscriptStatus.UnderAssigning);
         manuscript.setReviewerId(reviewerId);
         manuscript.setUpdateTime(LocalDateTime.now());
 
         return manuRepository.save(manuscript);
     }
+
+
+
+    @Transactional
+    public Manuscript setManuscriptGrade(Integer manuscriptId, ManuscriptGrade grade) {
+        Manuscript manuscript = manuRepository.findById(manuscriptId)
+                .orElseThrow(() -> new RuntimeException("稿件不存在"));
+
+        if (manuscript.getStatus() != ManuscriptStatus.Reviewed) {
+            throw new RuntimeException("只能对已评审的稿件设置评级");
+        }
+
+        manuscript.setGrade(grade);
+        manuscript.setUpdateTime(LocalDateTime.now());
+
+        return manuRepository.save(manuscript);
+    }
+
+
+    //获取待审核的稿件列表
+    public List<Manuscript> getAwaitingCheckingManuscripts(){
+        return manuRepository.findByStatus(ManuscriptStatus.AwaitingChecking);
+    }
+
+    //获取审核中的稿件列表
+    public List<Manuscript> getUnderCheckingManuscripts(){
+        return manuRepository.findByStatus(ManuscriptStatus.UnderChecking);
+    }
+
+    //获取待评审的稿件列表
+    public List<Manuscript> getAwaitingReviewingManuscripts(){
+        return manuRepository.findByStatus(ManuscriptStatus.AwaitingReviewing);
+    }
+
 
 }

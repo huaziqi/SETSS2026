@@ -1,93 +1,109 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useApi } from '@/utils/useApi'
-import AdminDashboard from '@/components/admin/AdminDashboard.vue'
-import PostManagementPanel from '@/components/admin/PostManagementPanel.vue'
-import CommentManagementPanel from '@/components/admin/CommentManagementPanel.vue'
-import UserManagementPanel from '@/components/admin/UserManagementPanel.vue'
-import ConferenceInfoPanel from '@/components/admin/ConferenceInfoPanel.vue'
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useApi } from "@/utils/useApi";
+import AdminDashboard from "@/components/admin/AdminDashboard.vue";
+import PostManagementPanel from "@/components/admin/PostManagementPanel.vue";
+import CommentManagementPanel from "@/components/admin/CommentManagementPanel.vue";
+import UserManagementPanel from "@/components/admin/UserManagementPanel.vue";
+import ConferenceInfoPanel from "@/components/admin/ConferenceInfoPanel.vue";
+
+import CheckManuPanel from "@/components/admin/CheckManuPanel.vue";
+import ManuscriptCheckDetail from "@/components/admin/ManuscriptCheckDetail.vue";
 
 interface PostItem {
-  postId: number
-  title: string
-  status: string
-  viewCount: number
-  isPinned: boolean
+  postId: number;
+  title: string;
+  status: string;
+  viewCount: number;
+  isPinned: boolean;
 }
 
-const router = useRouter()
-const { validate, data, fetchData } = useApi()
+const router = useRouter();
+const { validate, data, fetchData } = useApi();
 
-const userName = ref('')
-const role = ref('')
-const activeMenu = ref('dashboard')
-const allowedRoles = ['ROLE_ADMIN', 'ROLE_CHAIR', 'ROLE_VIEWER']
+const userName = ref("");
+const role = ref("");
+const activeMenu = ref("dashboard");
+const allowedRoles = ["ROLE_ADMIN", "ROLE_CHAIR", "ROLE_VIEWER"];
 
+const checkingManuId = ref<number | null>(null);
 
 const menuList = [
-  { key: 'dashboard', label: 'Dashboard' },
-  { key: 'users', label: 'User Management' },
-  { key: 'posts', label: 'Post Management' },
-  { key: 'comments', label: 'Comment Management' },
-  { key: 'conference', label: 'Conference Info' }
-]
+  { key: "dashboard", label: "Dashboard" },
+  { key: "users", label: "User Management" },
+  { key: "posts", label: "Post Management" },
+  { key: "comments", label: "Comment Management" },
+  { key: "conference", label: "Conference Info" },
+  { key: "check-manu", label: "Check Manuscripts" },
+];
 
-const posts = ref<PostItem[]>([])
-const message = ref('')
-const errorMsg = ref('')
+const posts = ref<PostItem[]>([]);
+const message = ref("");
+const errorMsg = ref("");
 
 const goHome = () => {
-  router.push('/')
-}
+  router.push("/");
+};
 
 const handleMenuClick = (key: string) => {
-  activeMenu.value = key
-}
+  activeMenu.value = key;
+  checkingManuId.value = null;
+};
 
 const handlePostsUpdated = (list: PostItem[]) => {
-  posts.value = list
-}
+  posts.value = list;
+};
 
-const handleNotify = (payload: { type: 'success' | 'error'; text: string }) => {
-  if (payload.type === 'success') {
-    message.value = payload.text
-    errorMsg.value = ''
+const handleNotify = (payload: { type: "success" | "error"; text: string }) => {
+  if (payload.type === "success") {
+    message.value = payload.text;
+    errorMsg.value = "";
   } else {
-    errorMsg.value = payload.text
-    message.value = ''
+    errorMsg.value = payload.text;
+    message.value = "";
   }
-}
+};
+
+// 处理从列表页进入详情页
+const handleViewDetail = (id: number) => {
+  checkingManuId.value = id;
+};
+
+// 处理从详情页返回列表
+const handleCloseDetail = () => {
+  checkingManuId.value = null;
+};
 
 const loadPostsForDashboard = async () => {
-  await fetchData('/api/admin/posts')
-  posts.value = data.value?.data || data.value || []
-}
+  await fetchData("/api/admin/posts");
+  posts.value = data.value?.data || data.value || [];
+};
 
 const logout = () => {
-  localStorage.removeItem('accessToken')
-  router.push('/login')
-}
+  localStorage.removeItem("accessToken");
+  router.push("/login");
+};
 
 onMounted(async () => {
-  const isValid = await validate()
+  const isValid = await validate();
 
   if (!isValid) {
-    router.push('/login')
-    return
+    router.push("/login");
+    return;
   }
 
-  userName.value = data.value.userName || data.value.username || ''
-  role.value = data.value.role || ''
+  userName.value = data.value.userName || data.value.username || "";
+  role.value = data.value.role || "";
 
   if (!allowedRoles.includes(role.value)) {
-    alert('You do not have permission to access this page.')
-    router.push('/')
-    return
+    alert("You do not have permission to access this page.");
+    router.push("/");
+    return;
   }
 
-  await loadPostsForDashboard()
-})
+  await loadPostsForDashboard();
+});
 </script>
 
 <template>
@@ -114,23 +130,23 @@ onMounted(async () => {
     <div class="admin-main">
       <header class="admin-header">
         <div>
-          <h1>{{ menuList.find(item => item.key === activeMenu)?.label }}</h1>
+          <!-- 动态标题：如果在详情页，显示详情标题 -->
+          <h1 v-if="checkingManuId">Manuscript Detail</h1>
+          <h1 v-else>
+            {{ menuList.find((item) => item.key === activeMenu)?.label }}
+          </h1>
+
           <p>Manage SETSS 2026 platform data and content.</p>
         </div>
 
         <div class="user-area">
-
           <div class="user-info">
             <strong>{{ userName }}</strong>
             <span>{{ role }}</span>
           </div>
 
-          <button class="logout-btn" @click="logout">
-            Logout
-          </button>
-          <button class="home-btn" @click="goHome">
-            Home
-          </button>
+          <button class="logout-btn" @click="logout">Logout</button>
+          <button class="home-btn" @click="goHome">Home</button>
         </div>
       </header>
 
@@ -138,10 +154,7 @@ onMounted(async () => {
         <p v-if="message" class="msg success">{{ message }}</p>
         <p v-if="errorMsg" class="msg error">{{ errorMsg }}</p>
 
-        <AdminDashboard
-          v-if="activeMenu === 'dashboard'"
-          :posts="posts"
-        />
+        <AdminDashboard v-if="activeMenu === 'dashboard'" :posts="posts" />
 
         <UserManagementPanel
           v-else-if="activeMenu === 'users'"
@@ -165,6 +178,23 @@ onMounted(async () => {
           @notify="handleNotify"
         />
 
+        <!-- 稿件审核逻辑：根据 checkingManuId 切换视图 -->
+        <template v-else-if="activeMenu === 'check-manu'">
+          <!-- 如果正在查看某个稿件的详情 -->
+          <ManuscriptCheckDetail
+            v-if="checkingManuId"
+            :manu-id="checkingManuId"
+            @back="handleCloseDetail"
+            @notify="handleNotify"
+          />
+
+          <!-- 否则显示列表 -->
+          <CheckManuPanel
+            v-else
+            @notify="handleNotify"
+            @view-detail="handleViewDetail"
+          />
+        </template>
       </main>
     </div>
   </div>
