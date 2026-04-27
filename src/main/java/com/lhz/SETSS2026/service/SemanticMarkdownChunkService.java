@@ -25,6 +25,7 @@ public class SemanticMarkdownChunkService {
 
         List<TextChunk> out = new ArrayList<>();
         int idx = 0;
+        int blockIndex = 0;
 
         for (Node block = doc.getFirstChild(); block != null; block = block.getNext()) {
             BasedSequence seq = block.getChars();
@@ -47,17 +48,24 @@ public class SemanticMarkdownChunkService {
                         idx++,
                         blockStart,
                         blockEnd,
-                        blockStart,
-                        blockEnd,
+                        blockIndex,
+                        blockIndex,
                         raw.trim()
                 ));
             } else {
                 List<TextChunk> parts =
                         SemanticTool.splitLongBlockBySentence(block, maxChars, idx);
 
+                for (TextChunk part : parts) {
+                    part.setBlockStart(blockIndex);
+                    part.setBlockEnd(blockIndex);
+                }
+
                 out.addAll(parts);
                 idx = out.size();
             }
+
+            blockIndex++;
         }
 
         return out;
