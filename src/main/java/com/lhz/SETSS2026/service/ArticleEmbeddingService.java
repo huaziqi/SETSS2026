@@ -38,22 +38,6 @@ public class ArticleEmbeddingService {
     @Value("${chat.bailian.key}")
     private String bailianKey;
 
-    /**
-     * 重建所有可搜索内容：
-     * 1. 已发布帖子
-     * 2. 已发布会议信息页面
-     */
-    @Transactional
-    public void rebuildAllEmbeddings() {
-        pgJdbcTemplate.update("DELETE FROM semantic_chunks");
-
-        syncAllPostEmbeddings();
-        syncAllConferencePageEmbeddings();
-    }
-
-    /**
-     * 同步所有已发布帖子
-     */
     @Transactional
     public void syncAllPostEmbeddings() {
         List<Post> posts = postRepository.findAll();
@@ -68,22 +52,6 @@ public class ArticleEmbeddingService {
         }
     }
 
-    /**
-     * 同步所有已发布会议信息页面
-     */
-    @Transactional
-    public void syncAllConferencePageEmbeddings() {
-        List<ConferencePage> pages = conferencePageRepository.findAll();
-
-        for (ConferencePage page : pages) {
-            if (!"PUBLISHED".equalsIgnoreCase(page.getStatus())) {
-                deleteEmbeddings("CONFERENCE_PAGE", page.getPageId());
-                continue;
-            }
-
-            syncConferencePageEmbeddings(page);
-        }
-    }
 
     /**
      * 根据 postId 同步单篇帖子

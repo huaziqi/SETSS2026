@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "moduleNo": 1,
+    "lecturer": "Moshe Y. Vardi",
+    "courseTopic": "AI Minds & Tony Hoare",
+    "introduction": "Introductory lecture on AI minds and Tony Hoare's contributions.",
+    "exactTime": "Monday 08:30–12:00",
+    "price": 500
+  },
+  {
+    "id": 2,
+    "moduleNo": 2,
+    "lecturer": "Einar Broch Johnsen",
+    "courseTopic": "Digital Twins",
+    "introduction": "Comprehensive module on digital twins concepts and applications.",
+    "exactTime": "Monday 14:00–17:30, Tuesday 08:30–12:00",
+    "price": 800
+  },
+  {
+    "id": 3,
+    "moduleNo": 3,
+    "lecturer": "Kim Guldstrand Larsen",
+    "courseTopic": "Cyber-Physical Systems",
+    "introduction": "Design, modeling and optimization of cyber-physical systems.",
+    "exactTime": "Tuesday 14:00–17:30, Wednesday 14:00–17:30",
+    "price": 800
+  },
+  {
+    "id": 4,
+    "moduleNo": 4,
+    "lecturer": "Bernhard Aichernig",
+    "courseTopic": "Automata Learning & AALpy",
+    "introduction": "Principles of automata learning with AALpy tool.",
+    "exactTime": "Wednesday 08:30–12:00, Thursday 08:30–12:00",
+    "price": 800
+  },
+  {
+    "id": 5,
+    "moduleNo": 5,
+    "lecturer": "Emily Yu",
+    "courseTopic": "Trustworthy Systems",
+    "introduction": "Key technologies for trustworthy and secure systems.",
+    "exactTime": "Thursday 14:00–17:30, Friday 08:30–12:00",
+    "price": 800
+  },
+  {
+    "id": 6,
+    "moduleNo": 6,
+    "lecturer": "Joseph Sifakis",
+    "courseTopic": "Autonomous Systems",
+    "introduction": "Overview of autonomous systems concepts and challenges.",
+    "exactTime": "Friday 14:00–15:00",
+    "price": 300
+  },
+  {
+    "id": 7,
+    "moduleNo": 7,
+    "lecturer": "Wei Dong",
+    "courseTopic": "Formal Synthesis for HCPS",
+    "introduction": "Formal synthesis techniques for Hybrid Cyber-Physical Systems.",
+    "exactTime": "Saturday 08:30–12:00",
+    "price": 600
+  },
+  {
+    "id": 8,
+    "moduleNo": 8,
+    "lecturer": "Miaomiao Zhang",
+    "courseTopic": "Timed Systems",
+    "introduction": "Modeling and analysis methods for timed systems.",
+    "exactTime": "Saturday 14:00–17:30",
+    "price": 600
+  }
+]

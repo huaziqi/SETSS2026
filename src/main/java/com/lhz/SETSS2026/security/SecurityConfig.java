@@ -44,7 +44,8 @@ public class SecurityConfig {
                                 "/api/auth/validate",
                                 "/api/ai/**",
                                 "/chat/**",
-                                "/avatars/**"
+                                "/avatars/**",
+                                "/api/semantic/search"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/*/comments").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/posts/*/comments").authenticated()

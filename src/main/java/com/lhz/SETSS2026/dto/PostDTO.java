@@ -26,6 +26,8 @@ public class PostDTO {
 
     private LocalDateTime publishTime;
     private LocalDateTime updateTime;
+
+    private String htmlContent;
     public Post toEntity(User user) {
         Post post = new Post();
 

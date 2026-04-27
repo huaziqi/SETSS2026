@@ -19,6 +19,7 @@ public class ConferencePageDTO {
     private String status;
     private LocalDateTime publishTime;
     private LocalDateTime updateTime;
+    private String htmlContent;
 
     public static ConferencePageDTO fromEntity(ConferencePage page) {
         ConferencePageDTO dto = new ConferencePageDTO();
