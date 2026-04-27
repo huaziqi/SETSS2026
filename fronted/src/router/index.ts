@@ -15,7 +15,7 @@ import PostDetail from "../views/forum/PostDetail.vue";
 import About from "@/views/Info/About.vue";
 import Courses from "@/views/Info/Courses.vue";
 
-import Submit from "../views/submitmanu/Submit.vue";
+import Submit from "../views/manu/Submit2.vue";
 
 const routes = [
   { path: "/", component: Home },

@@ -60,6 +60,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/posts/**").authenticated()
                         .requestMatchers("/api/users").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/chair/**").hasAnyRole("ADMIN", "CHAIR")
+                        .requestMatchers("/api/manuscript/assign").hasAnyRole("ADMIN", "CHAIR")
                         .anyRequest().authenticated()
 
                 ) // 请求路径的访问控制配置
