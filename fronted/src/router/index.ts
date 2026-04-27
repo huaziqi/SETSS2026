@@ -14,6 +14,7 @@ import ManuUpdate from "@/views/manu/ManuUpdate.vue";
 import PostDetail from "../views/forum/PostDetail.vue";
 import About from "@/views/Info/About.vue";
 import Courses from "@/views/Info/Courses.vue";
+import Admin from "@/views/admin/Admin.vue";
 
 import Submit from "../views/manu/Submit2.vue";
 
@@ -47,6 +48,7 @@ const routes = [
   { path: "/forum/post/:postId", component: PostDetail },
 
   { path: "/submit", component: Submit },
+  { path: "/admin", component: Admin },
 ];
 
 const router = createRouter({

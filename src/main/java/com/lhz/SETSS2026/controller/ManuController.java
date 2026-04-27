@@ -171,27 +171,6 @@ public class ManuController {
     }
 
 
-
-    //根据状态查询稿件
-    public Result getManuscriptsByStatus(@PathVariable String status) {
-        try {
-            List<Manuscript> list = manuService.getManuscriptsByStatus(status);
-            return Result.success(list);
-        } catch (Exception e) {
-            return Result.error("查询失败：" + e.getMessage());
-        }
-    }
-
-    //根据审稿人查询稿件
-    public Result getManuscriptsByReviewer(@PathVariable String reviewer) {
-    try {
-        List<Manuscript> list = manuService.getManuscriptsByReviewer(reviewer);
-        return Result.success(list);
-    }catch (Exception e){
-        return Result.error("查询失败：" + e.getMessage());
-        }
-    }
-
     //根据作者查询稿件
     public  Result getManuscriptsByAuthor(@PathVariable String author){
         try{
