@@ -97,9 +97,21 @@ const closeDropdown = () => {
         @blur="closeDropdown"
       />
 
-      <button class="search-button" @click="handleSearch">
-        Search
-      </button>
+    <button class="search-button" @click="handleSearch">
+    <svg
+    viewBox="0 0 24 24"
+    width="22"
+    height="22"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    >
+    <circle cx="11" cy="11" r="7"></circle>
+    <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
+    </svg>
+    </button>
     </div>
 
     <div v-if="showDropdown" class="dropdown">
@@ -165,14 +177,24 @@ const closeDropdown = () => {
 }
 
 .search-button {
+  width: 44px;
   height: 36px;
-  padding: 0 12px;
+  padding: 0;
   border: 1px solid #111;
   border-radius: 0 6px 6px 0;
   background: #111;
   color: #fff;
-  font-size: 13px;
   cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-button svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
 }
 
 .dropdown {
@@ -229,4 +251,5 @@ const closeDropdown = () => {
   font-size: 14px;
   color: #777;
 }
+
 </style>

@@ -108,12 +108,9 @@ public class PostService {
                 .toList();
     }
 
+
     @Transactional
     public PostDTO getPostDetail(Long postId) {
-        return getPostDetail(postId, null, null, null);
-    }
-    @Transactional
-    public PostDTO getPostDetail(Long postId, String anchorId, Integer blockStart, Integer blockEnd) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found"));
 
@@ -121,14 +118,9 @@ public class PostService {
 
         PostDTO dto = PostDTO.fromEntity(post);
 
-        String html = markdownRenderService.renderWithSearchAnchor(
-                post.getContent(),
-                anchorId,
-                blockStart,
-                blockEnd
+        dto.setHtmlContent(
+                markdownRenderService.render(post.getContent())
         );
-
-        dto.setHtmlContent(html);
 
         return dto;
     }

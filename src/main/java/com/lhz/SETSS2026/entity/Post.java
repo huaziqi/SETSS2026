@@ -23,7 +23,7 @@ public class Post {
     private String title;
 
     @Lob
-    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "content", columnDefinition = "LONGTEXT")
     private String content;
 
     @Column(name = "publish_time")
