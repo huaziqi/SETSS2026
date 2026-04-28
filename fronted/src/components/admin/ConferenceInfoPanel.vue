@@ -84,9 +84,8 @@ defineExpose({ loadPages })
 
 <style scoped>
 .panel {
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  padding: 24px;
+  width: 80%;
+  margin: 0 auto;
 }
 
 .panel-header {

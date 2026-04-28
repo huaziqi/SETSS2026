@@ -32,8 +32,8 @@ const menu = [
   { key: "courses", label: "Courses", path: "/courses" },
   { key: "participation", label: "Participation", path: "/participation" },
   { key: "manuscript", label: "Manuscript", path: "/submit" }, // 新增稿件提交
-  { key: "about", label: "About", path: "/about" },
   { key: "forum", label: "Forum", path: "/forum" },
+  { key: "about", label: "About", path: "/about" },
 ];
 </script>
 

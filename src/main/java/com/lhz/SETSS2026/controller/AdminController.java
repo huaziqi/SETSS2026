@@ -7,6 +7,8 @@ import com.LHZ.SETSS2026.service.ConferencePageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
@@ -17,43 +19,38 @@ public class AdminController {
 
     // ================= 用户管理 =================
 
-    //查询所有用户
     @GetMapping("/user/list")
-    public Result listUsers() {
-        return Result.success(adminService.listAllUsers());
+    public Result listUsers(Principal principal) {
+        return Result.success(adminService.listAllUsers(principal.getName()));
     }
 
-    //禁用用户
     @PostMapping("/user/disable/{userId}")
-    public Result disableUser(@PathVariable Integer userId) {
-        adminService.disableUser(userId);
+    public Result disableUser(@PathVariable Integer userId, Principal principal) {
+        adminService.disableUser(userId, principal.getName());
         return Result.success("禁用成功");
     }
 
-    //启用用户
     @PostMapping("/user/enable/{userId}")
-    public Result enableUser(@PathVariable Integer userId) {
-        adminService.enableUser(userId);
+    public Result enableUser(@PathVariable Integer userId, Principal principal) {
+        adminService.enableUser(userId, principal.getName());
         return Result.success("启用成功");
     }
 
-    //分配角色
     @PostMapping("/user/assignRole")
     public Result assignRoleToUser(@RequestParam Integer userId,
-                                   @RequestParam Integer roleId) {
-        adminService.assignRoleToUser(userId, roleId);
+                                   @RequestParam Integer roleId,
+                                   Principal principal) {
+        adminService.assignRoleToUser(userId, roleId, principal.getName());
         return Result.success("分配角色成功");
     }
 
     // ================= 帖子管理 =================
 
-    //查询所有帖子
     @GetMapping("/posts")
     public Result listPosts() {
         return Result.success(adminService.listAllPosts());
     }
 
-    // Pin/Unpin
     @PutMapping("/posts/{postId}/pin")
     public Result togglePin(@PathVariable Long postId,
                             @RequestParam Boolean isPinned) {
@@ -61,7 +58,6 @@ public class AdminController {
         return Result.success("Pin status updated");
     }
 
-    // 删除帖子
     @DeleteMapping("/posts/{postId}")
     public Result deletePost(@PathVariable Long postId) {
         adminService.deletePostByAdmin(postId);
@@ -70,13 +66,11 @@ public class AdminController {
 
     // ================= 评论管理 =================
 
-    // 查询所有评论
     @GetMapping("/comments")
     public Result listComments(@RequestParam(required = false) Long postId) {
         return Result.success(adminService.listComments(postId));
     }
 
-    // 删除评论
     @DeleteMapping("/comments/{commentId}")
     public Result deleteComment(@PathVariable Long commentId) {
         adminService.deleteCommentByAdmin(commentId);
@@ -85,13 +79,11 @@ public class AdminController {
 
     // ================= 会议信息页面管理 =================
 
-    // 查询所有页面（后台列表）
     @GetMapping("/pages")
     public Result listPages() {
         return Result.success(conferencePageService.listPages());
     }
 
-    // 查询单个页面（用于编辑）
     @GetMapping("/pages/{pageKey}")
     public Result getPage(@PathVariable String pageKey) {
         return Result.success(conferencePageService.getPageByKey(pageKey));
@@ -107,16 +99,9 @@ public class AdminController {
         return conferencePageService.getPageByKey(pageKey);
     }
 
-    // 更新页面内容（核心接口）
     @PutMapping("/pages/{pageKey}")
     public Result updatePage(@PathVariable String pageKey,
                              @RequestBody ConferencePageDTO dto) {
         return Result.success(conferencePageService.updatePage(pageKey, dto));
     }
-
-
-
-
-
-
 }

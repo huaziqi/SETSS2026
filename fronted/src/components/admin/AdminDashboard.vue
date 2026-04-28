@@ -32,7 +32,10 @@ const postStats = computed(() => {
 </template>
 
 <style scoped>
-.panel { background: #fff; border: 1px solid #e5e5e5; padding: 24px; }
+.panel {
+  width: 80%;
+  margin: 0 auto;
+}
 .panel h2 { margin: 0 0 14px; }
 .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
 .stat-card { background: #fafafa; border: 1px solid #ececec; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }

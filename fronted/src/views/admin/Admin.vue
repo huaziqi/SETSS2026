@@ -254,10 +254,15 @@ onMounted(async () => {
   color: #111;
 }
 
+/* Admin.vue */
 .admin-main {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
+
+
 
 .admin-header {
   min-height: 86px;
@@ -308,6 +313,9 @@ onMounted(async () => {
 }
 
 .content {
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
   padding: 28px 32px;
 }
 

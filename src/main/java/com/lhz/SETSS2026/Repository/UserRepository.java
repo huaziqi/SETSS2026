@@ -1,6 +1,5 @@
 package com.LHZ.SETSS2026.repository;
 
-import com.LHZ.SETSS2026.dto.Assign.UserSimpleDTO;
 import com.LHZ.SETSS2026.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,8 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
-
-    Optional<User> findById(Integer id);
 
     List<User> findByName(String name);
 
@@ -29,5 +26,3 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.role")
     List<User> findAllWithRole();
 }
-
-

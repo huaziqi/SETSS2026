@@ -22,76 +22,137 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AdminService {
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
-    private static final List<String> PROTECTED_ROLES = List.of(
-        "ROLE_ADMIN",
-        "ROLE_CHAIR",
-        "ROLE_REVIEWER"
-    );
+    private static final String ROLE_USER = "ROLE_USER";
+    private static final String ROLE_ADMIN = "ROLE_ADMIN";
+    private static final String ROLE_CHAIR = "ROLE_CHAIR";
+    private static final String ROLE_REVIEWER = "ROLE_REVIEWER";
 
-    private static final String MANAGEABLE_ROLE = "ROLE_USER";
+    // ================= 用户管理 =================
 
-    //查询所有用户（管理员）
-    public List<UserAdminDTO> listAllUsers() {
+    public List<UserAdminDTO> listAllUsers(String operatorName) {
+        User operator = getOperator(operatorName);
+        String operatorRole = getRoleName(operator);
+
         return userRepository.findAll()
                 .stream()
+                .filter(user -> canViewUser(operatorRole, user))
                 .map(UserAdminDTO::fromEntity)
                 .toList();
     }
 
-    //禁用用户
-    public void disableUser(Integer userId){
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("用户不存在"));
+    public void disableUser(Integer userId, String operatorName) {
+        User operator = getOperator(operatorName);
+        User target = getTargetUser(userId);
 
-        if (!isUserManageable(user)) {
-            throw new RuntimeException("无法管理该角色的用户");
-        }
+        checkCanManageUser(operator, target);
 
-        user.setEnable(false);
-        userRepository.save(user);
+        target.setEnable(false);
+        userRepository.save(target);
     }
 
-    //启用用户
-    public void enableUser(Integer userId){
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("用户不存在"));
+    public void enableUser(Integer userId, String operatorName) {
+        User operator = getOperator(operatorName);
+        User target = getTargetUser(userId);
 
-        if (!isUserManageable(user)) {
-            throw new RuntimeException("无法管理该角色的用户");
-        }
+        checkCanManageUser(operator, target);
 
-        user.setEnable(true);
-        userRepository.save(user);
+        target.setEnable(true);
+        userRepository.save(target);
     }
 
-    //给用户分配角色
-    public void assignRoleToUser(Integer userId, Integer roleId){
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("用户不存在"));
+    public void assignRoleToUser(Integer userId, Integer roleId, String operatorName) {
+        User operator = getOperator(operatorName);
+        User target = getTargetUser(userId);
 
-        if (!isUserManageable(user)) {
-            throw new RuntimeException("无法管理该角色的用户");
-        }
+        Role newRole = roleRepository.findById(roleId)
+                .orElseThrow(() -> new RuntimeException("角色不存在"));
 
-        Role targetRole = roleRepository.findById(roleId).orElseThrow(() -> new RuntimeException("角色不存在"));
+        checkCanManageUser(operator, target);
+        checkCanAssignRole(operator, target, newRole);
 
-        if (PROTECTED_ROLES.contains(targetRole.getName())) {
-            throw new RuntimeException("不允许分配此角色");
-        }
-
-        user.setRole(targetRole);
-        userRepository.save(user);
+        target.setRole(newRole);
+        userRepository.save(target);
     }
 
-    private boolean isUserManageable(User user) {
-        if (user.getRole() == null) {
-            return false;
-        }
-        String roleName = user.getRole().getName();
-        return roleName != null && roleName.equals(MANAGEABLE_ROLE);
+    private User getOperator(String operatorName) {
+        return userRepository.findByNameWithRole(operatorName)
+                .orElseThrow(() -> new RuntimeException("当前登录用户不存在"));
     }
+
+    private User getTargetUser(Integer userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+    }
+
+    private String getRoleName(User user) {
+        if (user == null || user.getRole() == null || user.getRole().getName() == null) {
+            return "";
+        }
+
+        return user.getRole().getName();
+    }
+
+    private boolean canViewUser(String operatorRole, User target) {
+        String targetRole = getRoleName(target);
+
+        if (ROLE_CHAIR.equals(operatorRole)) {
+            return true;
+        }
+
+        if (ROLE_ADMIN.equals(operatorRole) || ROLE_REVIEWER.equals(operatorRole)) {
+            return ROLE_USER.equals(targetRole);
+        }
+
+        return false;
+    }
+
+    private void checkCanManageUser(User operator, User target) {
+        String operatorRole = getRoleName(operator);
+        String targetRole = getRoleName(target);
+
+        if (operator.getId().equals(target.getId())) {
+            throw new RuntimeException("不能修改自己的权限或状态");
+        }
+
+        if (ROLE_CHAIR.equals(operatorRole)) {
+            return;
+        }
+
+        if ((ROLE_ADMIN.equals(operatorRole) || ROLE_REVIEWER.equals(operatorRole))
+                && ROLE_USER.equals(targetRole)) {
+            return;
+        }
+
+        throw new RuntimeException("你没有权限管理该用户");
+    }
+
+    private void checkCanAssignRole(User operator, User target, Role newRole) {
+        String operatorRole = getRoleName(operator);
+        String newRoleName = newRole.getName();
+
+        if (operator.getId().equals(target.getId())) {
+            throw new RuntimeException("不能修改自己的权限");
+        }
+
+        if (ROLE_CHAIR.equals(operatorRole)) {
+            return;
+        }
+
+        if ((ROLE_ADMIN.equals(operatorRole) || ROLE_REVIEWER.equals(operatorRole))
+                && ROLE_USER.equals(newRoleName)) {
+            return;
+        }
+
+        throw new RuntimeException("你没有权限分配该角色");
+    }
+
+    // ================= 帖子管理 =================
 
     public List<PostDTO> listAllPosts() {
         return postRepository.findAllByOrderByIsPinnedDescPublishTimeDesc()
@@ -119,12 +180,16 @@ public class AdminService {
         postRepository.delete(post);
     }
 
+    // ================= 评论管理 =================
+
     public List<CommentDTO> listComments(Long postId) {
         List<Comment> comments = postId == null
                 ? commentRepository.findAllByOrderByPublishTimeDesc()
                 : commentRepository.findByPost_PostIdOrderByPublishTimeDesc(postId);
 
-        return comments.stream().map(CommentDTO::fromEntity).toList();
+        return comments.stream()
+                .map(CommentDTO::fromEntity)
+                .toList();
     }
 
     @Transactional
@@ -135,6 +200,7 @@ public class AdminService {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
@@ -146,14 +212,17 @@ public class AdminService {
         if (dto.getParentCommentId() != null) {
             Comment parent = commentRepository.findById(dto.getParentCommentId())
                     .orElseThrow(() -> new EntityNotFoundException("Parent comment not found"));
+
             if (!parent.getPost().getPostId().equals(postId)) {
                 throw new RuntimeException("Parent comment does not belong to this post");
             }
+
             comment.setParentComment(parent);
         }
 
         Comment saved = commentRepository.save(comment);
         refreshPostCommentCount(post);
+
         return CommentDTO.fromEntity(saved);
     }
 
@@ -175,17 +244,21 @@ public class AdminService {
                 .orElseThrow(() -> new EntityNotFoundException("Comment not found"));
 
         Post post = comment.getPost();
+
         List<Comment> toDelete = new ArrayList<>();
         collectCommentTree(comment, toDelete);
+
         commentRepository.deleteAll(toDelete);
         refreshPostCommentCount(post);
     }
 
     private void collectCommentTree(Comment root, List<Comment> collector) {
         List<Comment> children = commentRepository.findByParentComment_CommentId(root.getCommentId());
+
         for (Comment child : children) {
             collectCommentTree(child, collector);
         }
+
         collector.add(root);
     }
 
