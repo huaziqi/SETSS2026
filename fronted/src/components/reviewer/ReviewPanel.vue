@@ -171,6 +171,10 @@ defineExpose({ loadManuscripts });
   flex-direction: column;
   height: 100%;
 }
+.panel {
+  width: 80%;
+  margin: 0 auto;
+}
 .panel-header {
   display: flex;
   justify-content: space-between;

@@ -282,12 +282,8 @@ defineExpose({ loadData });
 <style scoped>
 /* 保持之前的样式，确保弹窗高且靠上 */
 .panel {
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  width: 80%;
+  margin: 0 auto;
 }
 .panel-header {
   display: flex;

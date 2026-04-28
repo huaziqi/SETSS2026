@@ -78,6 +78,12 @@ const formatSimilarity = (value: number) => {
   return `${Math.round(value * 100)}%`
 }
 
+// 根据相似度控制黑色深浅
+const getSimilarityColor = (value: number) => {
+  const opacity = Math.min(Math.max(value, 0.35), 1)
+  return `rgba(0, 0, 0, ${opacity})`
+}
+
 const closeDropdown = () => {
   setTimeout(() => {
     showDropdown.value = false
@@ -97,21 +103,21 @@ const closeDropdown = () => {
         @blur="closeDropdown"
       />
 
-    <button class="search-button" @click="handleSearch">
-    <svg
-    viewBox="0 0 24 24"
-    width="22"
-    height="22"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2.6"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    >
-    <circle cx="11" cy="11" r="7"></circle>
-    <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
-    </svg>
-    </button>
+      <button class="search-button" @click="handleSearch">
+        <svg
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
+        </svg>
+      </button>
     </div>
 
     <div v-if="showDropdown" class="dropdown">
@@ -128,7 +134,13 @@ const closeDropdown = () => {
         >
           <div class="result-meta">
             <span>{{ formatType(item.sourceType) }}</span>
-            <span>{{ formatSimilarity(item.similarity) }}</span>
+
+            <span
+              class="similarity"
+              :style="{ color: getSimilarityColor(item.similarity) }"
+            >
+              {{ formatSimilarity(item.similarity) }}
+            </span>
           </div>
 
           <div class="result-title">
@@ -197,11 +209,12 @@ const closeDropdown = () => {
   flex-shrink: 0;
 }
 
+/* 下拉宽度 = 搜索栏宽度 */
 .dropdown {
   position: absolute;
   top: 46px;
-  right: 0;
-  width: 420px;
+  left: -38px;
+  width: 300px;
   max-height: 420px;
   overflow-y: auto;
   background: #fff;
@@ -212,7 +225,7 @@ const closeDropdown = () => {
 }
 
 .result-item {
-  padding: 14px 16px;
+  padding: 12px 14px;
   cursor: pointer;
   border-bottom: 1px solid #f0f0f0;
 }
@@ -229,15 +242,19 @@ const closeDropdown = () => {
   color: #777;
 }
 
+.similarity {
+  font-weight: 700;
+}
+
 .result-title {
   margin-bottom: 6px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: #111;
 }
 
 .result-content {
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.5;
   color: #555;
   display: -webkit-box;
@@ -247,9 +264,8 @@ const closeDropdown = () => {
 }
 
 .state {
-  padding: 18px;
-  font-size: 14px;
+  padding: 16px;
+  font-size: 13px;
   color: #777;
 }
-
 </style>

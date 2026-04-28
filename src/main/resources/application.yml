@@ -16,7 +16,7 @@ spring:
       driver-class-name: com.mysql.cj.jdbc.Driver
 
     postgres:
-      jdbc-url: jdbc:postgresql://10.135.246.144:5432/postgres
+      jdbc-url: jdbc:postgresql://localhost:5432/postgres
       username: postgres
       password: postgres
       driver-class-name: org.postgresql.Driver
