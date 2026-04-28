@@ -24,8 +24,9 @@ public class ChairService {
 
     // 查询所有用户（主席可以查看所有用户）
     public List<UserAdminDTO> listAllUsers() {
-        return userRepository.findAll()
+        return userRepository.findAllWithRole()
                 .stream()
+                .filter(user -> user.getRole() == null || !"ROLE_CHAIR".equals(user.getRole().getName()))
                 .map(UserAdminDTO::fromEntityForChair)
                 .toList();
     }

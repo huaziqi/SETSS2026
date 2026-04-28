@@ -2,8 +2,8 @@ package com.LHZ.SETSS2026.controller;
 
 import com.LHZ.SETSS2026.common.result.Result;
 import com.LHZ.SETSS2026.dto.Assign.UserSimpleDTO;
+import com.LHZ.SETSS2026.dto.Manuscripts.ManuscriptReviewDTO;
 import com.LHZ.SETSS2026.dto.Manuscripts.ManuscriptSimpleDTO;
-import com.LHZ.SETSS2026.dto.review.AssignManuscriptRequest;
 import com.LHZ.SETSS2026.entity.Manuscript;
 import com.LHZ.SETSS2026.enums.ManuscriptStatus;
 import com.LHZ.SETSS2026.service.ManuService;
@@ -175,13 +175,40 @@ public class ManuController {
                 return Result.error("拒绝原因不能为空");
             }
 
-            Manuscript manuscript = manuService.rejectManuscriptWithReason(manuId, reason.trim());
+            manuService.rejectManuscriptWithReason(manuId, reason.trim());
             ManuscriptSimpleDTO dto = manuService.getManuscriptForUpdate(manuId);
             return Result.success("稿件审核未通过", dto);
         } catch (Exception e) {
             return Result.error("稿件审核失败：" + e.getMessage());
         }
     }
+
+
+    @GetMapping("/get-single/{manuId}")
+    public Result getSingleManuscript(@PathVariable Integer manuId) {
+        try {
+            ManuscriptSimpleDTO dto = manuService.getManuscriptForChecking(manuId);
+            return Result.success(dto);
+        } catch (Exception e) {
+            return Result.error("获取稿件信息失败：" + e.getMessage());
+        }
+    }
+
+    //管理员审核时下载稿件源文件
+    @GetMapping("/download/{manuId}")
+    public void downloadManuscript(@PathVariable Integer manuId, HttpServletResponse response) {
+        try {
+            manuService.downloadManuscriptFile(manuId, response);
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            try {
+                response.getWriter().write("下载失败：" + e.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
 
     @GetMapping("/chair/assign/manu")
     public Result assignManuscript() {
@@ -203,34 +230,88 @@ public class ManuController {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //分配稿件
-    @PostMapping("/assign")
-    public Result assignManuscript(@RequestBody AssignManuscriptRequest request) {
+    @PostMapping("/chair/assign/confirm")
+    public Result confirmAssignManuscript(@RequestParam Integer manuId, @RequestParam Integer userId) {
         try {
-            Manuscript manuscript = manuService.assignManuscript(
-                    request.getManuscriptId(),
-                    request.getReviewerId()
-            );
-            return Result.success("稿件分配成功", manuscript);
+            manuService.confirmAssignManuscript(manuId, userId);
+            return Result.success("稿件分配确认成功");
         } catch (Exception e) {
-            return Result.error("稿件分配失败：" + e.getMessage());
+            return Result.error("确认分配失败：" + e.getMessage());
         }
     }
+
+
+    @GetMapping("/review/get/{reviewerId}")
+    public Result getManuscriptsForReview(@PathVariable Integer reviewerId) {
+        try {
+            List<ManuscriptSimpleDTO> list = manuService.getManuscriptsForReview(reviewerId);
+            return Result.success(list);
+        } catch (Exception e) {
+            return Result.error("查询失败：" + e.getMessage());
+        }
+    }
+
+    @GetMapping("/review/check/{reviewerId}")
+    public Result getReviewedManuscripts(@PathVariable Integer reviewerId) {
+        try {
+            List<ManuscriptReviewDTO> list = manuService.getReviewedManuscripts(reviewerId);
+            return Result.success(list);
+        } catch (Exception e) {
+            return Result.error("查询失败：" + e.getMessage());
+        }
+    }
+
+    @GetMapping("/review/get-single/{manuId}")
+    public Result getSingleReviewManu(@PathVariable Integer manuId) {
+        try {
+            ManuscriptReviewDTO dto = manuService.getSingleReviewManu(manuId);
+            return Result.success(dto);
+        } catch (Exception e) {
+            return Result.error("获取稿件信息失败：" + e.getMessage());
+        }
+    }
+
+    @GetMapping("/detail/get-single/{manuId}")
+    public Result getSingleManuDetail(@PathVariable Integer manuId) {
+        try {
+            System.out.println("=== Getting manuscript detail for ID: " + manuId);
+            ManuscriptReviewDTO dto = manuService.getSingleReviewManu(manuId);
+            System.out.println("=== Successfully retrieved manuscript: " + dto.getTitle());
+            return Result.success(dto);
+        } catch (Exception e) {
+            System.err.println("=== Error getting manuscript detail: " + e.getMessage());
+            e.printStackTrace();
+            return Result.error("获取稿件信息失败：" + e.getMessage());
+        }
+    }
+
+    @PostMapping("/review/submit/{manuId}")
+    public Result submitReview(
+            @PathVariable Integer manuId,
+            @RequestParam String result,
+            @RequestParam(required = false) String grade
+    ) {
+        try {
+            Manuscript manuscript = manuService.submitReview(manuId, result, grade);
+            return Result.success("审稿提交成功", manuscript);
+        } catch (Exception e) {
+            return Result.error("审稿提交失败：" + e.getMessage());
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //查询所有稿件
         @GetMapping("/list")

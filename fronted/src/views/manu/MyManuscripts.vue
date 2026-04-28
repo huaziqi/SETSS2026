@@ -7,8 +7,8 @@ interface Manuscript {
   manuscriptId: number;
   title: string;
   author: string;
-  introduction?: string; // 新增：确保类型定义包含此字段
-  originalFileName?: string; // 新增：确保类型定义包含此字段
+  introduction?: string;
+  originalFileName?: string;
   publishTime: string;
   updateTime: string;
   status: string;
@@ -16,23 +16,29 @@ interface Manuscript {
 
 const router = useRouter();
 
-// 状态定义
 const loading = ref(false);
 const manuscripts = ref<Manuscript[]>([]);
 const errorMsg = ref("");
 
-// 格式化时间辅助函数
 const formatDate = (dateStr: string) => {
   if (!dateStr) return "-";
   return dateStr.replace("T", " ").substring(0, 19);
 };
 
-// 判断是否可操作 (假设状态为 "PENDING" 或中文 "待审核" 时可操作)
 const isEditable = (status: string) => {
-  return status === "PENDING" || status.includes("待审核");
+  return status === "AwaitingChecking" || status.includes("待审核");
 };
 
-// 获取稿件列表
+// 🔥 新增：判断是否可以查看详情
+const canViewDetail = (status: string) => {
+  return (
+    status === "已评审" ||
+    status === "判定违规" ||
+    status === "Reviewed" ||
+    status === "NonCompliant"
+  );
+};
+
 const fetchManuscripts = async () => {
   const userId = localStorage.getItem("id");
   const token = localStorage.getItem("accessToken");
@@ -46,7 +52,6 @@ const fetchManuscripts = async () => {
   errorMsg.value = "";
 
   try {
-    // 对应后端 @GetMapping("/user/{userId}")
     const response = await axios.get(`/api/manuscript/user/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -71,9 +76,7 @@ const fetchManuscripts = async () => {
   }
 };
 
-// 处理删除
 const handleDelete = async (item: Manuscript) => {
-  // 二次确认
   if (!confirm(`Are you sure you want to delete "${item.title}"?`)) return;
 
   const token = localStorage.getItem("accessToken");
@@ -83,8 +86,6 @@ const handleDelete = async (item: Manuscript) => {
   }
 
   try {
-    // 调用后端删除接口
-    // 注意：后端路径是 /delete/{manuId}，且使用的是 DELETE 方法
     const response = await axios.delete(
       `/api/manuscript/delete/${item.manuscriptId}`,
       {
@@ -94,10 +95,8 @@ const handleDelete = async (item: Manuscript) => {
       },
     );
 
-    // 判断后端返回结果
     if (response.data && response.data.code === 200) {
       alert("Deleted successfully.");
-      // 删除成功后重新刷新列表
       fetchManuscripts();
     } else {
       errorMsg.value = response.data.message || "Failed to delete manuscript.";
@@ -115,10 +114,7 @@ const handleDelete = async (item: Manuscript) => {
   }
 };
 
-// 处理更新操作
-
 const handleUpdate = (item: Manuscript) => {
-  // 🔥 将数据存入 sessionStorage
   sessionStorage.setItem("manuscript_update_data", JSON.stringify(item));
 
   router.push({
@@ -127,7 +123,14 @@ const handleUpdate = (item: Manuscript) => {
   });
 };
 
-// 返回提交页
+// 🔥 新增：处理查看详情
+const handleViewDetail = (item: Manuscript) => {
+  router.push({
+    name: "ManuDetail",
+    params: { id: String(item.manuscriptId) },
+  });
+};
+
 const goBack = () => {
   router.push("/submit");
 };
@@ -140,23 +143,19 @@ onMounted(() => {
 <template>
   <div class="my-manuscripts-page">
     <div class="container">
-      <!-- 头部导航 -->
       <div class="header-actions">
         <button class="back-btn" @click="goBack">← Back to Submit</button>
         <h1 class="page-title">My Manuscripts</h1>
       </div>
 
-      <!-- 错误提示 -->
       <div v-if="errorMsg" class="alert-error">
         {{ errorMsg }}
       </div>
 
-      <!-- 加载状态 -->
       <div v-if="loading" class="loading-state">
         Loading your manuscripts...
       </div>
 
-      <!-- 空状态 -->
       <div v-else-if="manuscripts.length === 0" class="empty-state">
         <p>No manuscripts found.</p>
         <button class="create-btn" @click="goBack">
@@ -164,7 +163,6 @@ onMounted(() => {
         </button>
       </div>
 
-      <!-- 数据表格 -->
       <div v-else class="table-wrapper">
         <table class="manuscript-table">
           <thead>
@@ -189,7 +187,6 @@ onMounted(() => {
               <td>{{ formatDate(item.publishTime) }}</td>
               <td>{{ formatDate(item.updateTime) }}</td>
               <td class="col-action">
-                <!-- 只有待审核状态才显示操作按钮 -->
                 <template v-if="isEditable(item.status)">
                   <button
                     class="action-link update"
@@ -203,6 +200,14 @@ onMounted(() => {
                     @click="handleDelete(item)"
                   >
                     Delete
+                  </button>
+                </template>
+                <template v-else-if="canViewDetail(item.status)">
+                  <button
+                    class="action-link view"
+                    @click="handleViewDetail(item)"
+                  >
+                    View Detail
                   </button>
                 </template>
                 <span v-else class="no-action">-</span>
@@ -233,7 +238,6 @@ onMounted(() => {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
-/* Header */
 .header-actions {
   display: flex;
   align-items: center;
@@ -262,7 +266,6 @@ onMounted(() => {
   font-weight: 700;
 }
 
-/* Alerts & States */
 .alert-error {
   background: #fef2f2;
   color: #d93025;
@@ -289,7 +292,6 @@ onMounted(() => {
   cursor: pointer;
 }
 
-/* Table Styles */
 .table-wrapper {
   overflow-x: auto;
 }
@@ -334,7 +336,6 @@ onMounted(() => {
   text-align: center;
 }
 
-/* Status Badges */
 .status-badge {
   padding: 4px 8px;
   border-radius: 4px;
@@ -342,22 +343,23 @@ onMounted(() => {
   font-weight: 500;
 }
 
-/* 假设后端返回的状态英文，可根据实际调整 */
-.status-badge.pending {
+.status-badge.pending,
+.status-badge.awaitingchecking {
   background: #fff7ed;
   color: #c2410c;
 }
 .status-badge.published,
-.status-badge.approved {
+.status-badge.approved,
+.status-badge.reviewed {
   background: #f0fdf4;
   color: #15803d;
 }
-.status-badge.rejected {
+.status-badge.rejected,
+.status-badge.noncompliant {
   background: #fef2f2;
   color: #b91c1c;
 }
 
-/* Action Links */
 .action-link {
   background: none;
   border: none;
@@ -373,6 +375,11 @@ onMounted(() => {
 
 .action-link.delete {
   color: #dc2626;
+}
+
+/* 🔥 新增：查看详情按钮样式 */
+.action-link.view {
+  color: #10b981;
 }
 
 .action-link:hover {

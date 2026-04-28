@@ -1,7 +1,9 @@
 package com.LHZ.SETSS2026.service;
 
+import com.LHZ.SETSS2026.dto.Manuscripts.ManuscriptReviewDTO;
 import com.LHZ.SETSS2026.dto.Manuscripts.ManuscriptSimpleDTO;
 import com.LHZ.SETSS2026.entity.Manuscript;
+import com.LHZ.SETSS2026.entity.User;
 import com.LHZ.SETSS2026.enums.ManuscriptGrade;
 import com.LHZ.SETSS2026.enums.ManuscriptStatus;
 import com.LHZ.SETSS2026.repository.ManuRepository;
@@ -307,18 +309,92 @@ public class ManuService {
     }
 
 
-    //分配稿件
+
+
     @Transactional
-    public Manuscript assignManuscript(Integer manuscriptId, Integer reviewerId) {
+    public void confirmAssignManuscript(Integer manuscriptId, Integer userId) {
         Manuscript manuscript = manuRepository.findById(manuscriptId)
                 .orElseThrow(() -> new RuntimeException("稿件不存在"));
 
         if (manuscript.getStatus() != ManuscriptStatus.AwaitingAssigning) {
-            throw new RuntimeException("只能分配状态为'待分配'的稿件");
+            throw new RuntimeException("只能确认状态为'待分配'的稿件");
+        }
+        User reviewer = userRepository.findById(userId)
+                        .orElseThrow(() -> new RuntimeException("用户不存在"));
+        manuscript.setReviewerId(reviewer.getId());
+        manuscript.setReviewer(reviewer.getName());
+
+        manuscript.setStatus(ManuscriptStatus.AwaitingReviewing);
+        manuscript.setUpdateTime(LocalDateTime.now());
+
+        manuRepository.save(manuscript);
+    }
+
+
+    //根据审稿人ID查询待评审的稿件
+    public List<ManuscriptSimpleDTO> getManuscriptsForReview(Integer reviewerId) {
+        return manuRepository.findByReviewerIdAndStatus(reviewerId, ManuscriptStatus.AwaitingReviewing).stream()
+                .map(this::convertToSimpleDTO)
+                .collect(Collectors.toList());
+    }
+
+    //根据审稿人ID查询已完成审阅的稿件
+    public List<ManuscriptReviewDTO> getReviewedManuscripts(Integer reviewerId) {
+        List<ManuscriptStatus> reviewedStatuses = List.of(
+                ManuscriptStatus.Reviewed
+        );
+
+        return manuRepository.findByReviewerIdAndStatusIn(reviewerId, reviewedStatuses).stream()
+                .map(this::convertToReviewDTO)
+                .collect(Collectors.toList());
+    }
+
+
+    private ManuscriptReviewDTO convertToReviewDTO(Manuscript manuscript) {
+        ManuscriptReviewDTO dto = new ManuscriptReviewDTO();
+        dto.setManuscriptId(manuscript.getManuscriptId());
+        dto.setTitle(manuscript.getTitle());
+        dto.setAuthor(manuscript.getAuthor());
+        dto.setIntroduction(manuscript.getIntroduction());
+        dto.setOriginalFileName(manuscript.getOriginalFileName());
+        dto.setPublishTime(manuscript.getPublishTime());
+        dto.setUpdateTime(manuscript.getUpdateTime());
+        dto.setStatus(manuscript.getStatus() != null ? manuscript.getStatus().getDescription() : null);
+        dto.setReviewer(manuscript.getReviewer());
+        dto.setReviewResult(manuscript.getReviewResult());
+        dto.setGrade(manuscript.getGrade() != null ? manuscript.getGrade().getCode() : null);
+        return dto;
+    }
+
+
+    @Transactional
+    public Manuscript submitReview(Integer manuscriptId, String reviewResult, String gradeCode) {
+        Manuscript manuscript = manuRepository.findById(manuscriptId)
+                .orElseThrow(() -> new RuntimeException("稿件不存在"));
+
+        if (manuscript.getStatus() != ManuscriptStatus.AwaitingReviewing) {
+            throw new RuntimeException("只能评审状态为'待评审'的稿件");
         }
 
-        manuscript.setStatus(ManuscriptStatus.UnderAssigning);
-        manuscript.setReviewerId(reviewerId);
+        if (reviewResult == null || reviewResult.trim().isEmpty()) {
+            throw new RuntimeException("审稿结果不能为空");
+        }
+
+        ManuscriptGrade grade = null;
+        if (gradeCode != null && !gradeCode.trim().isEmpty()) {
+            try {
+                grade = java.util.Arrays.stream(ManuscriptGrade.values())
+                        .filter(g -> g.getCode().equals(gradeCode))
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("无效的评级：" + gradeCode));
+            } catch (Exception e) {
+                throw new RuntimeException("无效的评级：" + gradeCode);
+            }
+        }
+
+        manuscript.setReviewResult(reviewResult.trim());
+        manuscript.setGrade(grade);
+        manuscript.setStatus(ManuscriptStatus.Reviewed);
         manuscript.setUpdateTime(LocalDateTime.now());
 
         return manuRepository.save(manuscript);
@@ -342,20 +418,10 @@ public class ManuService {
     }
 
 
-    //获取待审核的稿件列表
-    public List<Manuscript> getAwaitingCheckingManuscripts(){
-        return manuRepository.findByStatus(ManuscriptStatus.AwaitingChecking);
+    public ManuscriptReviewDTO getSingleReviewManu(Integer manuId) {
+        Manuscript manuscript = manuRepository.findById(manuId)
+                .orElseThrow(() -> new RuntimeException("稿件不存在"));
+
+        return convertToReviewDTO(manuscript);
     }
-
-    //获取审核中的稿件列表
-    public List<Manuscript> getUnderCheckingManuscripts(){
-        return manuRepository.findByStatus(ManuscriptStatus.UnderChecking);
-    }
-
-    //获取待评审的稿件列表
-    public List<Manuscript> getAwaitingReviewingManuscripts(){
-        return manuRepository.findByStatus(ManuscriptStatus.AwaitingReviewing);
-    }
-
-
 }

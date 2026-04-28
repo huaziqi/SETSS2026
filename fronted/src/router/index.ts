@@ -11,10 +11,13 @@ import ForumWrite from "../views/forum/ForumWrite.vue";
 import MyPosts from "../views/forum/MyPosts.vue";
 import MyManuscripts from "../views/manu/MyManuscripts.vue";
 import ManuUpdate from "@/views/manu/ManuUpdate.vue";
+import ManuDetail from "@/views/manu/ManuDetail.vue";
 import PostDetail from "../views/forum/PostDetail.vue";
 import About from "@/views/Info/About.vue";
 import Courses from "@/views/Info/Courses.vue";
 import Admin from "@/views/admin/Admin.vue";
+import ChairConsole from "@/views/chair/ChairConsole.vue";
+import ReviewerConsole from "@/views/reviewer/ReviewerConsole.vue";
 import ConferencePageEditor from "@/views/admin/ConferencePageEditor.vue";
 
 import Submit from "../views/manu/Submit2.vue";
@@ -48,6 +51,11 @@ const routes = [
     component: ManuUpdate,
     meta: { requiresAuth: true },
   },
+  {
+    path: "/manuscript/detail/:id",
+    name: "ManuDetail",
+    component: ManuDetail,
+  },
   { path: "/forum/write", component: ForumWrite },
   { path: "/forum/my-posts", component: MyPosts },
   { path: "/forum/post/:postId", component: PostDetail },
@@ -64,7 +72,17 @@ const routes = [
     meta: { requiresAuth: true },
   },
   { path: "/admin", component: Admin },
-  { path: '/admin/conference/edit/:pageKey', component: ConferencePageEditor}
+  {
+    path: "/chair",
+    component: ChairConsole,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/reviewer",
+    component: ReviewerConsole,
+    meta: { requiresAuth: true },
+  },
+  { path: "/admin/conference/edit/:pageKey", component: ConferencePageEditor },
 ];
 
 const router = createRouter({
